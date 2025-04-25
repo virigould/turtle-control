@@ -205,7 +205,7 @@ function handle_message(message)
             end
         elseif info["direction"] == "back" then
             local move_attempt, mssg = turtle.back()
-            print(move_attempt .. mssg)
+            print(tostring(move_attempt) .. " " .. mssg)
             if not move_attempt then 
                 ws.send(textutils.serializeJSON(mssg))
                 do return end
