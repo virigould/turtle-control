@@ -108,20 +108,21 @@ async def go_mining(websocket):
 #         except websockets.ConnectionClosed:
 #             break
 
-async def handle_message(websocket, message):
-    print(message)
-    mssg = json.loads(message)
-    if "name" in mssg:
-        client_id = mssg["name"]
-        if client_id not in clients:
-                clients[client_id] = websocket
-        if "job" in mssg:
-            if mssg["job"] == "miner":
-                await go_mining(websocket)
-    elif "command_id" in mssg:
-        if mssg["command_id"] in current_commands:
-            command = current_commands.pop(mssg["id"])
-            command.set_result(mssg)
+async def handle_message(websocket):
+    async for message in websocket:
+        print(message)
+        mssg = json.loads(message)
+        if "name" in mssg:
+            client_id = mssg["name"]
+            if client_id not in clients:
+                    clients[client_id] = websocket
+            if "job" in mssg:
+                if mssg["job"] == "miner":
+                    await go_mining(websocket)
+        elif "command_id" in mssg:
+            if mssg["command_id"] in current_commands:
+                command = current_commands.pop(mssg["id"])
+                command.set_result(mssg)
     
 
 
@@ -134,8 +135,9 @@ async def handle_client(websocket):
 
     try:
         
-        async for message in websocket:
-            await handle_message(websocket, message)
+        
+
+        asyncio.create_task(handle_message(websocket))
         #while True:
             
 
