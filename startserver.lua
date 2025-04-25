@@ -79,6 +79,7 @@ function handle_message(message)
     elseif info["type"] == "gps" then
         local position = vector.new(gps.locate(5))
         position.command_id = info["id"]
+        print("in the gps")
         ws.send(textutils.serializeJSON(position))
         do return end
 
