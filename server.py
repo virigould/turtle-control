@@ -114,9 +114,9 @@ async def go_mining(websocket):
     #print(location)
     await send_inspect(websocket, 'down')
     print("after the send inspect")
-    # for i in range(20):
-    #     print("iteration " + str(i))
-    #     print(await send_move(websocket, "up"))
+    for i in range(20):
+        print("iteration " + str(i))
+        print(await send_move(websocket, "up"))
     #print("after the up movement")
     #print(block)
     location = await send_gps(websocket)
