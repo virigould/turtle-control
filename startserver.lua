@@ -341,7 +341,7 @@ function main()
         local file = io.open("computer_info.txt", "w")
         file:write(textutils.serialize(computer_info))
     end
-    ws.send(string.format("{\"name\": \"%s\", \"job\": \"%s\"}", computer_info.name, computer_info.job))
+    ws.send(string.format("{\"computer_name\": \"%s\", \"job\": \"%s\"}", computer_info.name, computer_info.job))
     --ws.send("ready")
     while true do
         local message = ws.receive()

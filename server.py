@@ -136,8 +136,8 @@ async def handle_message(websocket):
     async for message in websocket:
         print("Message: " + message)
         mssg = json.loads(message)
-        if "name" in mssg:
-            client_id = mssg["name"]
+        if "computer_name" in mssg:
+            client_id = mssg["computer_name"]
             print(client_id)
             if client_id not in clients:
                     clients[client_id] = websocket
