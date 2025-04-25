@@ -257,6 +257,7 @@ function main()
     --ws.send("ready")
     while true do
         local message = ws.receive()
+        print(message)
         if message == nil then
             print("The Websocket is terminated on client side")
             do return end 
