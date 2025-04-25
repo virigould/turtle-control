@@ -48,7 +48,9 @@ async def send_refuel(websocket, slot=None):
         return json.loads(await websocket.recv())
     else:
         await websocket.send(json.dumps({'type': 'refuel'}))
-        return json.loads(await websocket.recv())
+        message = await websocket.recv()
+        print(message)
+        return json.loads(message)
     
 
 async def go_mining(websocket):
