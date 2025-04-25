@@ -72,21 +72,24 @@ async def handle_client(websocket):
     client_id = json.loads(first_message)['name']
     print("just got the first message")
 
-    try:
-        #async for message in websocket:
+    async def message_listener():
+        try:
+        
 
-        if client_id not in clients:
-            clients[client_id] = websocket
+            if client_id not in clients:
+                clients[client_id] = websocket
 
 
             #await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
-        await go_mining(websocket)
-        print("Just sent the test message")
+            await go_mining(websocket)
+            print("Just sent the test message")
 
-    except websockets.exceptions.ConnectionClosed as e:
-        print(f"Disconnected {client_id}")
-    finally:
-        del clients[client_id]
+        except websockets.exceptions.ConnectionClosed as e:
+            print(f"Disconnected {client_id}")
+        finally:
+            del clients[client_id]
+    await message_listener() 
+    
 
 
 async def main():
