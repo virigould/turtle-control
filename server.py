@@ -63,7 +63,7 @@ async def go_mining(websocket):
     #     print(await send_move(websocket, "back"))
     # refueled = await send_refuel(websocket, 1)
     # print(f"Refueled: {refueled}")
-    location = await send_command(websocket, 'turtle.turnLeft()')
+    location = await send_turn(websocket, 'left')
     block = await send_inspect(websocket, 'down')
     print(block)
 
@@ -95,7 +95,7 @@ async def handle_client(websocket):
             
 
             #await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
-        await asyncio.gather(go_mining(websocket))
+        await go_mining(websocket)
         print("Just sent the test message")
         
 

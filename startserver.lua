@@ -43,7 +43,7 @@ function handle_message(message)
         ws.send(textutils.serializeJSON(command_output))
         do return end
     elseif info["type"] == "inspect" then
-        print("Inpecting" .. info["direction"])
+        print("Inpecting " .. info["direction"])
         if info["direction"] == "down" then
             local bool, block_info = turtle.inspectDown()
             if bool then
