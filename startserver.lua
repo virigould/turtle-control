@@ -250,7 +250,7 @@ function handle_message(message)
                 ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                local output = {command_output = turtle.getFuelLevel, command_id=info["id"]}
+                local output = {command_output = turtle.getFuelLevel(), command_id=info["id"]}
                 ws.send(textutils.serializeJSON(output))
                 do return end
             end

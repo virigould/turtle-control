@@ -153,6 +153,7 @@ async def handle_client(websocket):
         
 
     except websockets.exceptions.ConnectionClosed as e:
+        print("The websocket closed unexpectedly: " + e)
         pass
     # finally:
     #     del clients[client_id]
