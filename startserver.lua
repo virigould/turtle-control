@@ -84,7 +84,9 @@ function handle_message(message)
     elseif info["type"] == "turn" then
         if info["direction"] == "left" then
             local output = {command_output=turtle.turnLeft(), command_id=info["id"]}
+            print("After Left turn")
             ws.send(textutils.serializeJSON(output))
+            print("After Sent the message")
             do return end
         else 
             local output = {command_output=turtle.turnRight(), command_id=info["id"]}
