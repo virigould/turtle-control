@@ -249,11 +249,11 @@ function main()
         local file = io.open("computer_info.txt", "r")
         computer_info = textutils.unserialize(file:read "*all")
     else
-        computer_info = uuid()
+        computer_info = {name=uuid(), job="miner"}
         local file = io.open("computer_info.txt", "w")
         file:write(textutils.serialize(computer_info))
     end
-    ws.send(string.format("{\"name\": \"%s\"}", computer_info))
+    ws.send(string.format("{\"name\": \"%s\", \"job\": \"%s\"}", computer_info.name, computer_info.job))
     --ws.send("ready")
     while true do
         local message = ws.receive()

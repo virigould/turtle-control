@@ -66,11 +66,22 @@ async def go_mining(websocket):
     print(block)
 
 
+# async def keep_alive(websocket, interval=30):
+#     while True:
+#         try:
+#             await websocket.ping()
+#             await websocket.recv()
+#             await asyncio.sleep(interval)
+#         except websockets.ConnectionClosed:
+#             break
+
+
 async def handle_client(websocket):
 
+    #asyncio.create_task(keep_alive(websocket))
     first_message = await websocket.recv()
     client_id = json.loads(first_message)['name']
-    print("just got the first message")
+    print("just got the first message" + client_id)
 
     try:
         
@@ -81,14 +92,14 @@ async def handle_client(websocket):
             
 
             #await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
-        await go_mining(websocket)
+        await asyncio.gather(go_mining(websocket))
         print("Just sent the test message")
         
 
     except websockets.exceptions.ConnectionClosed as e:
         print(f"Disconnected {client_id}")
-    finally:
-        del clients[client_id]
+    # finally:
+    #     del clients[client_id]
 
 
 async def main():
