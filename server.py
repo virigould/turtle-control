@@ -74,14 +74,15 @@ async def handle_client(websocket):
 
     try:
         
-        async for message in websocket:
-            if client_id not in clients:
-                clients[client_id] = websocket
-
+        # async for message in websocket:
+        #     if client_id not in clients:
+        #         clients[client_id] = websocket
+        while True:
+            
 
             #await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
-        await go_mining(websocket)
-        print("Just sent the test message")
+            await go_mining(websocket)
+            print("Just sent the test message")
         
 
     except websockets.exceptions.ConnectionClosed as e:
