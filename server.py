@@ -34,14 +34,26 @@ async def send_suck(websocket, direction, count=None):
     if count is not None:
         await websocket.send(json.dumps({'type': 'move', 'direction': direction, 'count': count}))
         return json.loads(await websocket.recv())
-    await websocket.send(json.dumps({'type': 'move', 'direction': direction}))
-    return json.loads(await websocket.recv())
+    else:
+        await websocket.send(json.dumps({'type': 'move', 'direction': direction}))
+        return json.loads(await websocket.recv())
 
 async def send_turn(websocket, direction):
     await websocket.send(json.dumps({'type': 'turn', 'direction': direction}))
     return json.loads(await websocket.recv())
 
+async def send_refuel(websocket, slot=None):
+    if slot is not None:
+        await websocket.send(json.dumps({'type': 'refuel', 'slot': slot}))
+        return json.loads(await websocket.recv())
+    else:
+        await websocket.send(json.dumps({'type': 'refuel'}))
+        return json.loads(await websocket.recv())
+    
+
 async def go_mining(websocket):
+    refueled = await send_refuel(websocket, 1)
+    print(f"Refueled: {refueled}")
     location = await send_command(websocket, 'turtle.turnLeft()')
     block = await send_inspect(websocket, 'down')
     print(block)
@@ -54,15 +66,15 @@ async def handle_client(websocket):
     print("just got the first message")
 
     try:
-        async for message in websocket:
+        #async for message in websocket:
 
-            if client_id not in clients:
-                clients[client_id] = websocket
+        if client_id not in clients:
+            clients[client_id] = websocket
 
 
             #await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
-            await go_mining(websocket)
-            print("Just sent the test message")
+        await go_mining(websocket)
+        print("Just sent the test message")
 
     except websockets.exceptions.ConnectionClosed as e:
         print(f"Disconnected {client_id}")

@@ -25,6 +25,7 @@ function check_inventory()
         local item = turtle.getItemDetail(i)
         inventory[item.name] = item.count
         return inventory
+    end
 end
 
 
