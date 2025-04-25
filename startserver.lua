@@ -39,26 +39,30 @@ function handle_message(message)
         print(info["command"])
         local f = load(info["command"])
         local command_output = f()
-        print(textutils.serializeJSON(command_output))
-        ws.send(textutils.serializeJSON(command_output))
+        local output_table = {command_output=command_output, command_id=info["id"]} 
+        print(textutils.serializeJSON(output_table))
+        ws.send(textutils.serializeJSON(output_table))
         do return end
     elseif info["type"] == "inspect" then
         print("Inpecting " .. info["direction"])
         if info["direction"] == "down" then
             local bool, block_info = turtle.inspectDown()
             if bool then
+                block_info["command_id"] = info["id"]
                 ws.send(textutils.serializeJSON(block_info))
                 do return end
             end
         elseif info["direction"] == "forward" then
             local bool, block_info = turtle.inspect()
             if bool then
+                block_info["command_id"] = info["id"]
                 ws.send(textutils.serializeJSON(block_info))
                 do return end
             end
         elseif info["direction"] == "up" then
             local bool, block_info = turtle.inspectUp()
             if bool then
+                block_info["command_id"] = info["id"]
                 ws.send(textutils.serializeJSON(block_info))
                 do return end
             end
@@ -67,19 +71,24 @@ function handle_message(message)
             do return end
         end
     elseif info["type"] == "inventory" then
-        ws.send(textutils.serializeJSON(check_inventory()))
+        local inv = check_inventory()
+        inv["command_id"] = info["id"]
+        ws.send(textutils.serializeJSON())
         do return end
     elseif info["type"] == "gps" then
         local postion = vector.new(gps.locate(5))
+        position.command_id = info["id"]
         ws.send(textutils.serializeJSON(positon))
         do return end
 
     elseif info["type"] == "turn" then
         if info["direction"] == "left" then
-            ws.send(textutils.serializeJSON(turtle.turnLeft()))
+            local output = {command_output=turtle.turnLeft(), command_id=info["id"]}
+            ws.send(textutils.serializeJSON(output))
             do return end
         else 
-            ws.send(textutils.serializeJSON(turtle.turnRight()))
+            local output = {command_output=turtle.turnRight(), command_id=info["id"]}
+            ws.send(textutils.serializeJSON(output))
             do return end
         end
 
@@ -87,19 +96,34 @@ function handle_message(message)
         if info["direction"] == "down" then
             local bool, mssg = turtle.digDown("right")
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_id=info["id"], command_output=mssg}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_id=info["id"], command_output=bool}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         elseif info["direction"] == "forward" then
             local bool, mssg = turtle.dig("right")
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_id=info["id"], command_output=mssg}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_id=info["id"], command_output=bool}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         elseif info["direction"] == "up" then
             local bool, mssg  = turtle.digUp("right")
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_id=info["id"], command_output=mssg}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_id=info["id"], command_output=bool}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         else
@@ -116,7 +140,12 @@ function handle_message(message)
                 bool, mssg = turtle.suckDown(info["count"])
             end
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         elseif info["direction"] == "forward" then
@@ -127,7 +156,12 @@ function handle_message(message)
                 bool, mssg = turtle.suck(info["count"])
             end
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         elseif info["direction"] == "up" then
@@ -138,7 +172,12 @@ function handle_message(message)
                 bool, mssg = turtle.suckUp(info["count"])
             end
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         else
@@ -150,19 +189,34 @@ function handle_message(message)
         if info["direction"] == "down" then
             local bool, mssg = turtle.placeDown()
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         elseif info["direction"] == "forward" then
             local bool, mssg = turtle.place()
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         elseif info["direction"] == "up" then
             local bool, mssg  = turtle.placeUp()
             if not bool then
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
+                do return end
+            else
+                local issue = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             end
         else
@@ -174,10 +228,12 @@ function handle_message(message)
         if info["slot"] ~= nil then
             local fueled, mssg = turtle.refuel()
             if not fueled then
-                ws.send(textutils.serializeJSON({message=mssg}))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                ws.send(textutils.serializeJSON(turtle.getFuelLevel()))
+                local output = {command_output = turtle.getFuelLevel, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(output))
                 do return end
             end
 
@@ -185,10 +241,12 @@ function handle_message(message)
             turtle.select(info["slot"])
             local fueled, mssg = turtle.refuel()
             if not fueled then
-                ws.send(textutils.serializeJSON({message=mssg}))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                ws.send(textutils.serializeJSON(turtle.getFuelLevel()))
+                local output = {command_output = turtle.getFuelLevel, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(output))
                 do return end
             end
         end
@@ -197,38 +255,42 @@ function handle_message(message)
         if info["direction"] == "forward" then    
             local move_attempt, mssg = turtle.forward()
             if not move_attempt then 
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                ws.send(textutils.serializeJSON({bool=move_attempt, fuel=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit()}))
+                ws.send(textutils.serializeJSON({bool=move_attempt, command_output=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(), command_id=info["id"]}))
                 do return end
             end
         elseif info["direction"] == "back" then
             local move_attempt, mssg = turtle.back()
             print(tostring(move_attempt) .. " " .. mssg)
             if not move_attempt then 
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                ws.send(textutils.serializeJSON({bool=move_attempt, fuel=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit()}))
+                ws.send(textutils.serializeJSON({bool=move_attempt, command_output=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(), command_id=info["id"]}))
                 do return end
             end
         elseif info["direction"] == "up" then
             local move_attempt, mssg = turtle.up()
             if not move_attempt then 
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                ws.send(textutils.serializeJSON({bool=move_attempt, fuel=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit()}))
+                ws.send(textutils.serializeJSON({bool=move_attempt, command_output=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(), command_id=info["id"]}))
                 do return end
             end
         elseif info["direction"] == "down" then
             local move_attempt, mssg = turtle.down()
             if not move_attempt then 
-                ws.send(textutils.serializeJSON(mssg))
+                local issue = {command_output=mssg, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(issue))
                 do return end
             else
-                ws.send(textutils.serializeJSON({bool=move_attempt, fuel=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit()}))
+                ws.send(textutils.serializeJSON({bool=move_attempt, command_output=turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(), command_id=info["id"]}))
                 do return end
             end
         end

@@ -1,60 +1,90 @@
 import asyncio
 import websockets
 import json
+import uuid
 
-current_commands = []
-
+current_commands = {}
+current_id = 0
 clients = {}
 
 
 async def send_command(websocket, command):
-    await websocket.send(json.dumps({'type': 'eval', 'command': 'return ' + command}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id, 'type': 'eval', 'command': 'return ' + command}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 
 async def send_inspect(websocket, direction):
-    await websocket.send(json.dumps({'type': 'inspect', 'direction': direction}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id,'type': 'inspect', 'direction': direction}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 async def send_dig(websocket, direction):
-    await websocket.send(json.dumps({'type': 'dig', 'direction': direction}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id,'type': 'dig', 'direction': direction}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 async def check_inventory(websocket):
-    await websocket.send(json.dumps({'type': 'inventory'}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id,'type': 'inventory'}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 async def send_place(websocket, direction):
-    await websocket.send(json.dumps({'type': 'place', 'direction': direction}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id,'type': 'place', 'direction': direction}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 async def send_move(websocket, direction):
-    await websocket.send(json.dumps({'type': 'move', 'direction': direction}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id,'type': 'move', 'direction': direction}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 async def send_suck(websocket, direction, count=None):
     if count is not None:
-        await websocket.send(json.dumps({'type': 'move', 'direction': direction, 'count': count}))
-        return json.loads(await websocket.recv())
+        id = str(uuid.uuid4())
+        await websocket.send(json.dumps({'id': id,'type': 'move', 'direction': direction, 'count': count}))
+        current_commands[id] = asyncio.get_event_loop().create_future()
+        response = await current_commands[id]
+        return json.loads(response)
     else:
-        await websocket.send(json.dumps({'type': 'move', 'direction': direction}))
-        return json.loads(await websocket.recv())
+        id = str(uuid.uuid4())
+        await websocket.send(json.dumps({'id': id,'type': 'move', 'direction': direction}))
+        current_commands[id] = asyncio.get_event_loop().create_future()
+        response = await current_commands[id]
+        return json.loads(response)
 
 async def send_turn(websocket, direction):
-    await websocket.send(json.dumps({'type': 'turn', 'direction': direction}))
-    return json.loads(await websocket.recv())
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id,'type': 'turn', 'direction': direction}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return json.loads(response)
 
 async def send_refuel(websocket, slot=None):
     if slot is not None:
-        await websocket.send(json.dumps({'type': 'refuel', 'slot': slot}))
-        message = await websocket.recv()
-        print(message)
-        return json.loads(message)
+        id = str(uuid.uuid4())
+        await websocket.send(json.dumps({'id': id,'type': 'refuel', 'slot': slot}))
+        current_commands[id] = asyncio.get_event_loop().create_future()
+        response = await current_commands[id]
+        return json.loads(response)
     else:
-        await websocket.send(json.dumps({'type': 'refuel'}))
-        message = await websocket.recv()
-        print(message)
-        return json.loads(message)
+        id = str(uuid.uuid4())
+        await websocket.send(json.dumps({'id': id,'type': 'refuel'}))
+        current_commands[id] = asyncio.get_event_loop().create_future()
+        response = await current_commands[id]
+        return json.loads(response)
     
 
 async def go_mining(websocket):
@@ -78,30 +108,43 @@ async def go_mining(websocket):
 #         except websockets.ConnectionClosed:
 #             break
 
+async def handle_message(websocket, message):
+    mssg = json.loads(message)
+    if "name" in mssg:
+        client_id = mssg["name"]
+        if client_id not in clients:
+                clients[client_id] = websocket
+        if "job" in mssg:
+            if mssg["job"] == "miner":
+                await go_mining(websocket)
+    elif "command_id" in mssg:
+        if mssg["command_id"] in current_commands:
+            command = current_commands.pop(mssg["id"])
+            command.set_result(mssg)
+    
+
+
 
 
 async def handle_client(websocket):
 
     #asyncio.create_task(keep_alive(websocket))
-    first_message = await websocket.recv()
-    client_id = json.loads(first_message)['name']
-    print("just got the first message " + client_id)
+    
 
     try:
-        clients[client_id] = websocket
-        # async for message in websocket:
-        #     if client_id not in clients:
-        #         clients[client_id] = websocket
+        
+        async for message in websocket:
+            await handle_message(websocket, message)
         #while True:
             
 
             #await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
-        await go_mining(websocket)
+        #await go_mining(websocket)
         print("Just sent the test message")
         
 
     except websockets.exceptions.ConnectionClosed as e:
-        print(f"Disconnected {client_id}")
+        pass
     # finally:
     #     del clients[client_id]
 
