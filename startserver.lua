@@ -28,6 +28,10 @@ function check_inventory()
     end
 end
 
+function safe_send(message)
+    if 
+end
+
 
 function send_message(message)
     ws.send(string.format("{\"name\": \"%s\", \"message\": \"%s\"}", computer_info, message))
@@ -83,7 +87,8 @@ function handle_message(message)
 
     elseif info["type"] == "turn" then
         if info["direction"] == "left" then
-            local output = {command_output=turtle.turnLeft(), command_id=info["id"]}
+            local stuffs = turtle.turnLeft()
+            local output = {command_output=stuffs, command_id=info["id"]}
             print("After Left turn")
             print("Sending: " .. textutils.serializeJSON(output))
             ws.send(textutils.serializeJSON(output))
