@@ -16,6 +16,13 @@ async def send_command(websocket, command):
     return response
 
 
+async def send_gps(websocket):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({'id': id, 'type': 'gps'}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
 async def send_inspect(websocket, direction):
     print("in send inspect")
     id = str(uuid.uuid4())
@@ -106,7 +113,7 @@ async def go_mining(websocket):
     #print(location)
     block = await send_inspect(websocket, 'down')
     print(block)
-    location = await send_command("gps.locate(5)")
+    location = await send_gps(websocket)
 
 
 # async def keep_alive(websocket, interval=30):
