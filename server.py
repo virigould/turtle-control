@@ -106,6 +106,7 @@ async def go_mining(websocket):
     #print(location)
     block = await send_inspect(websocket, 'down')
     print(block)
+    location = await send_command("gps.locate(5)")
 
 
 # async def keep_alive(websocket, interval=30):
