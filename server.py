@@ -72,6 +72,7 @@ async def send_turn(websocket, direction):
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     print("after send turn response await")
+    print(response)
     return json.loads(response)
 
 async def send_refuel(websocket, slot=None):
