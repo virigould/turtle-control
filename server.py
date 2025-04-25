@@ -91,9 +91,9 @@ async def send_refuel(websocket, slot=None):
     
 
 async def go_mining(websocket):
-    # for i in range(20):
-    #     print("iteration " + str(i))
-    #     print(await send_move(websocket, "back"))
+    for i in range(20):
+        print("iteration " + str(i))
+        print(await send_move(websocket, "down"))
     # refueled = await send_refuel(websocket, 1)
     # print(f"Refueled: {refueled}")
     print("in go mining")

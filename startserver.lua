@@ -86,18 +86,18 @@ function handle_message(message)
         if info["direction"] == "left" then
             local stuffs = turtle.turnLeft()
             local output = {command_output=stuffs, command_id=info["id"]}
-            print("After Left turn")
-            print("Sending: " .. textutils.serializeJSON(output))
-            print("WebSocket OPEN:", tostring(ws and ws.send ~= nil))
+            --print("After Left turn")
+            --print("Sending: " .. textutils.serializeJSON(output))
+            --print("WebSocket OPEN:", tostring(ws and ws.send ~= nil))
             local ok, err = pcall( function () 
                 ws.send(textutils.serializeJSON(output))
             end)
-            if not ok then
-                print("message could not send")
-            else 
-                print("message should have send")
-            end
-            print("After Sent the message")
+            -- if not ok then
+            --     print("message could not send")
+            -- else 
+            --     print("message should have send")
+            -- end
+            --print("After Sent the message")
             do return end
         else 
             local output = {command_output=turtle.turnRight(), command_id=info["id"]}
@@ -313,7 +313,7 @@ function handle_message(message)
     else
         print("Could not understand the command")
     end
-    ws.send("Ready")
+    --ws.send("Ready")
 end
 
 
