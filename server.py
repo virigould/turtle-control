@@ -111,9 +111,13 @@ async def go_mining(websocket):
     await send_turn(websocket, 'left')
     print("after turn left in go mining")
     #print(location)
-    block = await send_inspect(websocket, 'down')
-    print(block)
+    await send_inspect(websocket, 'down')
+    for i in range(20):
+        print(await send_move(websocket, "up"))
+
+    #print(block)
     location = await send_gps(websocket)
+    print(location)
 
 
 # async def keep_alive(websocket, interval=30):
