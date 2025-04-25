@@ -45,7 +45,9 @@ async def send_turn(websocket, direction):
 async def send_refuel(websocket, slot=None):
     if slot is not None:
         await websocket.send(json.dumps({'type': 'refuel', 'slot': slot}))
-        return json.loads(await websocket.recv())
+        message = await websocket.recv()
+        print(message)
+        return json.loads(message)
     else:
         await websocket.send(json.dumps({'type': 'refuel'}))
         message = await websocket.recv()
