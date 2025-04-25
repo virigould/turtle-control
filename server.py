@@ -64,6 +64,7 @@ async def go_mining(websocket):
     # refueled = await send_refuel(websocket, 1)
     # print(f"Refueled: {refueled}")
     location = await send_turn(websocket, 'left')
+    print(location)
     block = await send_inspect(websocket, 'down')
     print(block)
 
