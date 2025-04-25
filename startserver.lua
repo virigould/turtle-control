@@ -37,15 +37,15 @@ end
 function handle_message(message)
     local info = textutils.unserializeJSON(message)
     if info["type"] == "eval" then
-        print(info["command"])
+        --print(info["command"])
         local f = load(info["command"])
         local command_output = f()
         local output_table = {command_output=command_output, command_id=info["id"]} 
-        print(textutils.serializeJSON(output_table))
+        --print(textutils.serializeJSON(output_table))
         ws.send(textutils.serializeJSON(output_table))
         do return end
     elseif info["type"] == "inspect" then
-        print("Inpecting " .. info["direction"])
+        --print("Inpecting " .. info["direction"])
         if info["direction"] == "down" then
             local bool, block_info = turtle.inspectDown()
             if bool then
@@ -278,7 +278,7 @@ function handle_message(message)
             end
         elseif info["direction"] == "back" then
             local move_attempt, mssg = turtle.back()
-            print(tostring(move_attempt) .. " " .. mssg)
+            --print(tostring(move_attempt) .. " " .. mssg)
             if not move_attempt then 
                 local issue = {command_output=mssg, command_id=info["id"]}
                 ws.send(textutils.serializeJSON(issue))
@@ -333,7 +333,7 @@ function main()
     --ws.send("ready")
     while true do
         local message = ws.receive()
-        print(message)
+        --print(message)
         if message == nil then
             ws = assert(http.websocket("ws://localhost:7788"))
             message = ws.receive()
