@@ -97,6 +97,7 @@ async def go_mining(websocket):
     # print(f"Refueled: {refueled}")
     print("in go mining")
     await send_turn(websocket, 'left')
+    print("after turn left in go mining")
     #print(location)
     block = await send_inspect(websocket, 'down')
     print(block)

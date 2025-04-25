@@ -24,8 +24,9 @@ function check_inventory()
         
         local item = turtle.getItemDetail(i)
         inventory[item.name] = item.count
-        return inventory
+        
     end
+    return inventory
 end
 
 
@@ -73,12 +74,12 @@ function handle_message(message)
     elseif info["type"] == "inventory" then
         local inv = check_inventory()
         inv["command_id"] = info["id"]
-        ws.send(textutils.serializeJSON())
+        ws.send(textutils.serializeJSON(inv))
         do return end
     elseif info["type"] == "gps" then
-        local postion = vector.new(gps.locate(5))
+        local position = vector.new(gps.locate(5))
         position.command_id = info["id"]
-        ws.send(textutils.serializeJSON(positon))
+        ws.send(textutils.serializeJSON(position))
         do return end
 
     elseif info["type"] == "turn" then
