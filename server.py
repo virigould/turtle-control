@@ -102,9 +102,9 @@ Effectively a test method to try working on if the commands work and return what
 Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
 """
 async def go_mining(websocket):
-    for i in range(20):
-        print("iteration " + str(i))
-        print(await send_move(websocket, "down"))
+    # for i in range(20):
+    #     print("iteration " + str(i))
+    #     print(await send_move(websocket, "down"))
     # refueled = await send_refuel(websocket, 1)
     # print(f"Refueled: {refueled}")
     print("in go mining")
@@ -113,8 +113,9 @@ async def go_mining(websocket):
     #print(location)
     await send_inspect(websocket, 'down')
     print("after the send inspect")
-    for i in range(20):
-        print(await send_move(websocket, "up"))
+    # for i in range(20):
+    #     print("iteration " + str(i))
+    #     print(await send_move(websocket, "up"))
     print("after the up movement")
     #print(block)
     location = await send_gps(websocket)

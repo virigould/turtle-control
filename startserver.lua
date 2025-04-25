@@ -52,6 +52,10 @@ function handle_message(message)
                 block_info["command_id"] = info["id"]
                 ws.send(textutils.serializeJSON(block_info))
                 do return end
+            else
+                local output = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(block_info))
+                do return end
             end
         elseif info["direction"] == "forward" then
             local bool, block_info = turtle.inspect()
@@ -59,11 +63,19 @@ function handle_message(message)
                 block_info["command_id"] = info["id"]
                 ws.send(textutils.serializeJSON(block_info))
                 do return end
+            else
+                local output = {command_output=bool, command_id=info["id"]}
+                ws.send(textutils.serializeJSON(block_info))
+                do return end
             end
         elseif info["direction"] == "up" then
             local bool, block_info = turtle.inspectUp()
             if bool then
                 block_info["command_id"] = info["id"]
+                ws.send(textutils.serializeJSON(block_info))
+                do return end
+            else
+                local output = {command_output=bool, command_id=info["id"]}
                 ws.send(textutils.serializeJSON(block_info))
                 do return end
             end
