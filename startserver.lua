@@ -175,8 +175,10 @@ function handle_message(message)
             local fueled, mssg = turtle.refuel()
             if not fueled then
                 ws.send(textutils.serializeJSON({message=mssg}))
+                do return end
             else
                 ws.send(textutils.serializeJSON(turtle.getFuelLevel()))
+                do return end
             end
 
         else
@@ -184,8 +186,10 @@ function handle_message(message)
             local fueled, mssg = turtle.refuel()
             if not fueled then
                 ws.send(textutils.serializeJSON({message=mssg}))
+                do return end
             else
                 ws.send(textutils.serializeJSON(turtle.getFuelLevel()))
+                do return end
             end
         end
     

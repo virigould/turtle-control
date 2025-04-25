@@ -57,7 +57,7 @@ async def send_refuel(websocket, slot=None):
 
 async def go_mining(websocket):
     for i in range(20):
-        await send_move(websocket, "back")
+        print(await send_move(websocket, "back"))
     refueled = await send_refuel(websocket, 1)
     print(f"Refueled: {refueled}")
     location = await send_command(websocket, 'turtle.turnLeft()')
