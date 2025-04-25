@@ -89,7 +89,11 @@ async def send_refuel(websocket, slot=None):
         response = await current_commands[id]
         return response
     
+"""
+Effectively a test method to try working on if the commands work and return what we need
 
+Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
+"""
 async def go_mining(websocket):
     for i in range(20):
         print("iteration " + str(i))
@@ -125,6 +129,7 @@ async def handle_message(websocket):
             if "job" in mssg:
                 print(mssg['job'])
                 if mssg["job"] == "miner":
+                    #this has to be in the background and can not be awaited as it will block all the threads
                     asyncio.get_event_loop().create_task(go_mining(websocket))
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
