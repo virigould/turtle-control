@@ -114,9 +114,11 @@ async def handle_message(websocket):
         mssg = json.loads(message)
         if "name" in mssg:
             client_id = mssg["name"]
+            print(client_id)
             if client_id not in clients:
                     clients[client_id] = websocket
             if "job" in mssg:
+                print(mssg['job'])
                 if mssg["job"] == "miner":
                     await go_mining(websocket)
         elif "command_id" in mssg:
