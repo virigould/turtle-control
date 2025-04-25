@@ -88,6 +88,7 @@ function handle_message(message)
             local output = {command_output=stuffs, command_id=info["id"]}
             print("After Left turn")
             print("Sending: " .. textutils.serializeJSON(output))
+            os.sleep(1)
             local ok, err = pcall( function () 
                 ws.send(textutils.serializeJSON(output))
             end)
