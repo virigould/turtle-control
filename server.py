@@ -78,8 +78,8 @@ async def send_turn(websocket, direction):
     await websocket.send(json.dumps({'id': id,'type': 'turn', 'direction': direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    print("after send turn response await")
-    print(response)
+    #print("after send turn response await")
+    #print(response)
     return response
 
 async def send_refuel(websocket, slot=None):
@@ -102,6 +102,7 @@ Effectively a test method to try working on if the commands work and return what
 Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
 """
 async def go_mining(websocket):
+    await send_gps(websocket)
     # for i in range(20):
     #     print("iteration " + str(i))
     #     print(await send_move(websocket, "down"))
@@ -116,7 +117,7 @@ async def go_mining(websocket):
     # for i in range(20):
     #     print("iteration " + str(i))
     #     print(await send_move(websocket, "up"))
-    print("after the up movement")
+    #print("after the up movement")
     #print(block)
     location = await send_gps(websocket)
     print(location)
