@@ -259,8 +259,7 @@ function main()
         local message = ws.receive()
         print(message)
         if message == nil then
-            print("The Websocket is terminated on client side")
-            do return end 
+            print("message was nil?")
         end
         handle_message(message)
     end
