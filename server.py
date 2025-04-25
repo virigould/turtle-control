@@ -70,7 +70,7 @@ async def keep_alive(websocket, interval=30):
     while True:
         try:
             await websocket.ping()
-            await websocket.recv()
+            #await websocket.recv()
             await asyncio.sleep(interval)
         except websockets.ConnectionClosed:
             break
