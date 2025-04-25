@@ -260,6 +260,7 @@ function main()
         print(message)
         if message == nil then
             print("message was nil?")
+            break
         end
         handle_message(message)
     end
