@@ -85,6 +85,7 @@ function handle_message(message)
         if info["direction"] == "left" then
             local output = {command_output=turtle.turnLeft(), command_id=info["id"]}
             print("After Left turn")
+            print("Sending: " .. textutils.serializeJSON(output))
             ws.send(textutils.serializeJSON(output))
             print("After Sent the message")
             do return end
@@ -323,8 +324,8 @@ function main()
         local message = ws.receive()
         print(message)
         if message == nil then
-            print("message was nil?")
-            break
+            ws = assert(http.websocket("ws://localhost:7788"))
+            message = ws.receive()
         end
         handle_message(message)
     end
