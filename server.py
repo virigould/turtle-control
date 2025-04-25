@@ -103,9 +103,9 @@ Eventually we will make a async queue that gets propigated with commands to send
 """
 async def go_mining(websocket):
     await send_gps(websocket)
-    # for i in range(20):
-    #     print("iteration " + str(i))
-    #     print(await send_move(websocket, "down"))
+    for i in range(20):
+        print("iteration " + str(i))
+        print(await send_move(websocket, "down"))
     # refueled = await send_refuel(websocket, 1)
     # print(f"Refueled: {refueled}")
     print("in go mining")
