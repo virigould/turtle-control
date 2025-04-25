@@ -137,7 +137,7 @@ async def handle_client(websocket):
         
         
 
-        asyncio.create_task(handle_message(websocket))
+        await asyncio.create_task(handle_message(websocket))
         #while True:
             
 
