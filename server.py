@@ -110,7 +110,7 @@ async def go_mining(websocket):
 
 async def handle_message(websocket):
     async for message in websocket:
-        print(message)
+        print("Message: " + message)
         mssg = json.loads(message)
         if "name" in mssg:
             client_id = mssg["name"]
