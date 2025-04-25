@@ -13,7 +13,7 @@ async def send_command(websocket, command):
     await websocket.send(json.dumps({'id': id, 'type': 'eval', 'command': 'return ' + command}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return json.loads(response)
+    return response
 
 
 async def send_inspect(websocket, direction):
@@ -22,35 +22,35 @@ async def send_inspect(websocket, direction):
     await websocket.send(json.dumps({'id': id,'type': 'inspect', 'direction': direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return json.loads(response)
+    return response
 
 async def send_dig(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({'id': id,'type': 'dig', 'direction': direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return json.loads(response)
+    return response
 
 async def check_inventory(websocket):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({'id': id,'type': 'inventory'}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return json.loads(response)
+    return response
 
 async def send_place(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({'id': id,'type': 'place', 'direction': direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return json.loads(response)
+    return response
 
 async def send_move(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({'id': id,'type': 'move', 'direction': direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return json.loads(response)
+    return response
 
 async def send_suck(websocket, direction, count=None):
     if count is not None:
@@ -58,13 +58,13 @@ async def send_suck(websocket, direction, count=None):
         await websocket.send(json.dumps({'id': id,'type': 'move', 'direction': direction, 'count': count}))
         current_commands[id] = asyncio.get_event_loop().create_future()
         response = await current_commands[id]
-        return json.loads(response)
+        return response
     else:
         id = str(uuid.uuid4())
         await websocket.send(json.dumps({'id': id,'type': 'move', 'direction': direction}))
         current_commands[id] = asyncio.get_event_loop().create_future()
         response = await current_commands[id]
-        return json.loads(response)
+        return response
 
 async def send_turn(websocket, direction):
     id = str(uuid.uuid4())
@@ -73,7 +73,7 @@ async def send_turn(websocket, direction):
     response = await current_commands[id]
     print("after send turn response await")
     print(response)
-    return json.loads(response)
+    return response
 
 async def send_refuel(websocket, slot=None):
     if slot is not None:
@@ -81,13 +81,13 @@ async def send_refuel(websocket, slot=None):
         await websocket.send(json.dumps({'id': id,'type': 'refuel', 'slot': slot}))
         current_commands[id] = asyncio.get_event_loop().create_future()
         response = await current_commands[id]
-        return json.loads(response)
+        return response
     else:
         id = str(uuid.uuid4())
         await websocket.send(json.dumps({'id': id,'type': 'refuel'}))
         current_commands[id] = asyncio.get_event_loop().create_future()
         response = await current_commands[id]
-        return json.loads(response)
+        return response
     
 
 async def go_mining(websocket):
