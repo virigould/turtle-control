@@ -254,7 +254,7 @@ function main()
         file:write(textutils.serialize(computer_info))
     end
     ws.send(string.format("{\"name\": \"%s\"}", computer_info))
-    ws.send("ready")
+    --ws.send("ready")
     while true do
         local message = ws.receive()
         handle_message(message)
