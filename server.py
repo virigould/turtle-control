@@ -126,7 +126,7 @@ async def handle_message(websocket):
                     await go_mining(websocket)
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
-                command = current_commands.pop(mssg["id"])
+                command = current_commands.pop(mssg["command_id"])
                 command.set_result(mssg)
     
 
