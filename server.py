@@ -17,6 +17,7 @@ async def send_command(websocket, command):
 
 
 async def send_inspect(websocket, direction):
+    print("in send inspect")
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({'id': id,'type': 'inspect', 'direction': direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
@@ -93,6 +94,7 @@ async def go_mining(websocket):
     #     print(await send_move(websocket, "back"))
     # refueled = await send_refuel(websocket, 1)
     # print(f"Refueled: {refueled}")
+    print("in go mining")
     location = await send_turn(websocket, 'left')
     print(location)
     block = await send_inspect(websocket, 'down')
