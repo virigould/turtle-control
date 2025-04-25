@@ -28,10 +28,6 @@ function check_inventory()
     end
 end
 
-function safe_send(message)
-    if 
-end
-
 
 function send_message(message)
     ws.send(string.format("{\"name\": \"%s\", \"message\": \"%s\"}", computer_info, message))
