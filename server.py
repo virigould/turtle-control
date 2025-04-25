@@ -112,9 +112,10 @@ async def go_mining(websocket):
     print("after turn left in go mining")
     #print(location)
     await send_inspect(websocket, 'down')
+    print("after the send inspect")
     for i in range(20):
         print(await send_move(websocket, "up"))
-
+    print("after the up movement")
     #print(block)
     location = await send_gps(websocket)
     print(location)
