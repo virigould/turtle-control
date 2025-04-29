@@ -117,6 +117,17 @@ async def send_refuel(websocket, slot=None):
         return response
 
 
+def check_do_not_break(name):
+    do_not_break_list = [
+        # to do
+        # need to fill this with blocks we actually do not want the turtles to break.
+        "minecraft:stone"
+    ]
+    if name in do_not_break_list:
+        return True
+    return False
+
+
 class Turtle:
     def __init__(self, name, websocket):
         self.location = {"x": 0, "y": 0, "z": 0}
@@ -124,6 +135,14 @@ class Turtle:
         self.direction = "x"
         self.websocket = websocket
         self.block_buffer = []
+        self.last_refuel = 10
+
+    async def check_refuel(self):
+        if self.last_refuel == 10:
+            self.last_refuel = 0
+            await send_refuel(self.websocket)
+
+    # def check_geofence():
 
     async def forward(self):
         return await send_move(self.websocket, "forward")
