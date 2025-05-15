@@ -189,6 +189,21 @@ class Turtle:
     async def dig_down(self):
         return await send_dig(self.websocket, "down")
 
+    async def full_inspect(self):
+        results = {}
+        results["up"] = await self.inspect_up()
+        results["down"] = await self.inspect_down()
+        results["forward"] = await self.inspect()
+        await self.turn_left()
+        results["left"] = await self.inspect()
+        await self.turn_left()
+        results["behind"] = await self.inspect()
+        await self.turn_left()
+        results["right"] = await self.inspect()
+        await self.turn_left()
+        return results
+
+
     """
 Effectively a test method to try working on if the commands work and return what we need
 
@@ -197,10 +212,17 @@ Eventually we will make a async queue that gets propigated with commands to send
 
 
 async def go_mining(turtle):
-    # await send_gps(websocket)
-    # for i in range(20):
-    #     print("iteration " + str(i))
-    #     print(await send_move(websocket, "down"))
+     turtle.location = await send_gps(turtle.websocket)
+
+     for i in range(20):
+         print(await turtle.full_inspect())
+
+
+
+
+
+
+
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
     # print("in go mining")
