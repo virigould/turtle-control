@@ -203,6 +203,40 @@ class Turtle:
         await self.turn_left()
         return results
 
+    async def inspect_walls(self):
+        results = {}
+        results["up"] = await self.inspect_up()
+        results["down"] = await self.inspect_down()
+        await self.turn_left()
+        results["left"] = await self.inspect()
+        await self.turn_right()
+        await self.turn_right()
+        results["right"] = await self.inspect()
+        await self.turn_left()
+        return results
+
+    async def inspect_top(self):
+        results = {}
+        results["up"] = await self.inspect_up()
+        await self.turn_left()
+        results["left"] = await self.inspect()
+        await self.turn_right()
+        await self.turn_right()
+        results["right"] = await self.inspect()
+        await self.turn_left()
+        return results
+
+
+    async def inspect_bottom(self):
+        results = {}
+        results["down"] = await self.inspect_down()
+        await self.turn_left()
+        results["left"] = await self.inspect()
+        await self.turn_right()
+        await self.turn_right()
+        results["right"] = await self.inspect()
+        await self.turn_left()
+        return results
 
     """
 Effectively a test method to try working on if the commands work and return what we need
@@ -210,15 +244,67 @@ Effectively a test method to try working on if the commands work and return what
 Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
 """
 
+def is_valuable(block):
+    if block is None:
+        return False
+    name = block.get("name", "")
+    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone"]
+    return any(ore in name for ore in valuable_keywords)
+
+def turn_and_dig(blocks):
+    """
+    basically we're just trying to efficiently turn and excavate the valuable blocks here, valuable directions indicates where the valuable ores are. the turn map cuts down on instructions
+    :param blocks: 
+    :return instructions: 
+    """
+    valuable_directions = [block.direction for block in blocks if is_valuable(block)]
+    instructions = []
+
+    if "down" in valuable_directions:
+        instructions.append("dig_down")
+    if "up" in valuable_directions:
+        instructions.append("dig_up")
+    if "forward" in valuable_directions:
+        instructions.append("dig")
+
+    turn_map = {
+        "left": ["turn_left", "dig", "turn_right"],
+        "right": ["turn_right", "dig", "turn_left"],
+        "behind": ["turn_left", "turn_left", "dig", "turn_left", "turn_left"]
+    }
+
+    if "left" and "behind" in valuable_directions and "right" not in valuable_directions:
+        instructions += ["turn_left", "dig", "turn_left", "dig", "turn_left", "turn_left"]
+        valuable_directions.remove("left")
+        valuable_directions.remove("behind")
+    elif "right" and "behind" in valuable_directions and "left" not in valuable_directions:
+        instructions += ["turn_right", "dig", "turn_right", "dig", "turn_left", "turn_left"]
+        valuable_directions.remove("right")
+        valuable_directions.remove("behind")
+    elif "right" and "left" and "behind" in valuable_directions:
+        instructions += ["turn_left","dig","turn_left","dig","turn_left","dig", "turn_left"]
+        valuable_directions.remove("right")
+        valuable_directions.remove("behind")
+        valuable_directions.remove("left")
+
+    for direction in ["left", "right", "behind"]:
+        if direction in valuable_directions:
+            instructions += turn_map[direction]
+            
+    return instructions
+
+
 
 async def go_mining(turtle):
      turtle.location = await send_gps(turtle.websocket)
      print(turtle.location)
-     home = turtle.location
+     home = turtle.location.copy()
      x = 0
      y = 0
      z = 0
-     print(await turtle.full_inspect())
+     blocks = await turtle.full_inspect()
+     if blocks:
+
 
 
 
