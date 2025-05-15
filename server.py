@@ -238,7 +238,7 @@ async def go_mining(turtle):
     # # print(block)
     # location = await send_gps(websocket)
     # print(location)
-    pass
+    # pass
 
 
 # async def keep_alive(websocket, interval=30):
