@@ -251,9 +251,11 @@ def is_valuable(block):
     valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone"]
     return any(ore in name for ore in valuable_keywords)
 
-def turn_and_dig(blocks):
+def dig_valuable(blocks):
     """
-    basically we're just trying to efficiently turn and excavate the valuable blocks here, valuable directions indicates where the valuable ores are. the turn map cuts down on instructions
+    basically we're just trying to efficiently turn and excavate the valuable blocks here, valuable directions indicates where the valuable ores are.
+    the turn map is a list of instructions for each direction a valuable block could be in besides up down and forward
+    the if statements handle cases where there are multiple valuable blocks in the blocks param
     :param blocks: 
     :return instructions: 
     """
