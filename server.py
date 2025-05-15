@@ -213,9 +213,7 @@ Eventually we will make a async queue that gets propigated with commands to send
 
 async def go_mining(turtle):
      turtle.location = await send_gps(turtle.websocket)
-
-     for i in range(20):
-         print(await turtle.full_inspect())
+     print(await turtle.full_inspect())
 
 
 
