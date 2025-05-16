@@ -251,13 +251,13 @@ def is_valuable(block):
     if block is None:
         return False
     name = block.get("name", "")
-    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone"]
+    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone","ore"]
     return any(ore in name for ore in valuable_keywords)
 
 def dig_valuable(blocks):
     """
     takes a dictionary of direction -> block info, and returns a list of
-    instructions to efficiently mine valuable ores.
+    instructions to efficiently mine ores.
     :param blocks: Dictionary like {"up": {...}, "left": {...}, ...}
     :return: List of instructions (e.g. ["dig_down", "turn_left", "dig", ...])
     """
