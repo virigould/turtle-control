@@ -35,10 +35,8 @@ async def send_inspect(websocket, direction):
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     if "No block to inspect" not in response:
-        print(response)
         return response
     else:
-        print("fuck you")
         return None
 
 
