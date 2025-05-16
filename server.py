@@ -293,18 +293,14 @@ def dig_valuable(blocks):
     return instructions
 
 async def go_mining(turtle):
+    # store a copy of the home coordinates, and initiate distance variables
     turtle.location = await send_gps(turtle.websocket)
-    print(turtle.location)
     home = turtle.location.copy()
-    instructions = []
     x = 0
     y = 0
     z = 0
-    blocks = await turtle.full_inspect()
-    if blocks:
-        instructions = dig_valuable(blocks)
 
-    # Map instruction strings to Turtle methods
+    # map strings to methods
     instruction_map = {
         "dig": turtle.dig,
         "dig_up": turtle.dig_up,
@@ -312,6 +308,14 @@ async def go_mining(turtle):
         "turn_left": turtle.turn_left,
         "turn_right": turtle.turn_right,
     }
+    instructions = []
+
+    # start mining (:
+    blocks = await turtle.full_inspect()
+
+    if blocks:
+        print(blocks)
+        instructions = dig_valuable(blocks)
 
     for instruction in instructions:
         action = instruction_map.get(instruction)
@@ -319,14 +323,6 @@ async def go_mining(turtle):
             await action()
         else:
             print(f"Unknown instruction: {instruction}")
-
-
-
-
-
-
-
-
 
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
