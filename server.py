@@ -37,6 +37,7 @@ async def send_inspect(websocket, direction):
     if "No block to inspect" not in response:
         return response
     else:
+        print("fuck you")
         return None
 
 
@@ -195,8 +196,11 @@ class Turtle:
     async def full_inspect(self):
         results = {}
         results["up"] = await self.inspect_up()
+        print(str(results) + "up")
         results["down"] = await self.inspect_down()
+        print(str(results) + "down")
         results["forward"] = await self.inspect()
+        print(str(results) + "forward")
         await self.turn_left()
         results["left"] = await self.inspect()
         await self.turn_left()
