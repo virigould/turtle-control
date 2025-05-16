@@ -253,21 +253,32 @@ def is_valuable(block):
 
 def dig_valuable(blocks):
     """
-    basically we're just trying to efficiently turn and excavate the valuable blocks here, valuable directions indicates where the valuable ores are.
-    the turn map is a list of instructions for each direction a valuable block could be in besides up down and forward
-    the if statements handle cases where there are multiple valuable blocks in the blocks param
-    :param blocks: 
-    :return instructions: 
+    takes a dictionary of direction -> block info, and returns a list of
+    instructions to efficiently mine valuable ores.
+    :param blocks: Dictionary like {"up": {...}, "left": {...}, ...}
+    :return: List of instructions (e.g. ["dig_down", "turn_left", "dig", ...])
     """
-    valuable_directions = [block.direction for block in blocks if is_valuable(block)]
+    valuable_directions = [direction for direction, block in blocks.items() if is_valuable(block)]
     instructions = []
 
-    if "down" in valuable_directions:
-        instructions.append("dig_down")
-    if "up" in valuable_directions:
-        instructions.append("dig_up")
-    if "forward" in valuable_directions:
-        instructions.append("dig")
+    for direction in ["down", "up", "forward"]:
+        if direction in valuable_directions:
+            instructions.append(f"dig_{direction}" if direction != "forward" else "dig")
+            valuable_directions.remove(direction)
+
+    if "left" in valuable_directions and "behind" in valuable_directions and "right" not in valuable_directions:
+        instructions += ["turn_left", "dig", "turn_left", "dig", "turn_left", "turn_left"]
+        valuable_directions.remove("left")
+        valuable_directions.remove("behind")
+    elif "right" in valuable_directions and "behind" in valuable_directions and "left" not in valuable_directions:
+        instructions += ["turn_right", "dig", "turn_right", "dig", "turn_left", "turn_left"]
+        valuable_directions.remove("right")
+        valuable_directions.remove("behind")
+    elif all(d in valuable_directions for d in ["left", "right", "behind"]):
+        instructions += ["turn_left", "dig", "turn_left", "dig", "turn_left", "dig", "turn_left"]
+        valuable_directions.remove("left")
+        valuable_directions.remove("right")
+        valuable_directions.remove("behind")
 
     turn_map = {
         "left": ["turn_left", "dig", "turn_right"],
@@ -275,24 +286,10 @@ def dig_valuable(blocks):
         "behind": ["turn_left", "turn_left", "dig", "turn_left", "turn_left"]
     }
 
-    if "left" and "behind" in valuable_directions and "right" not in valuable_directions:
-        instructions += ["turn_left", "dig", "turn_left", "dig", "turn_left", "turn_left"]
-        valuable_directions.remove("left")
-        valuable_directions.remove("behind")
-    elif "right" and "behind" in valuable_directions and "left" not in valuable_directions:
-        instructions += ["turn_right", "dig", "turn_right", "dig", "turn_left", "turn_left"]
-        valuable_directions.remove("right")
-        valuable_directions.remove("behind")
-    elif "right" and "left" and "behind" in valuable_directions:
-        instructions += ["turn_left","dig","turn_left","dig","turn_left","dig", "turn_left"]
-        valuable_directions.remove("right")
-        valuable_directions.remove("behind")
-        valuable_directions.remove("left")
-
     for direction in ["left", "right", "behind"]:
         if direction in valuable_directions:
             instructions += turn_map[direction]
-            
+
     return instructions
 
 
