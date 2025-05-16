@@ -35,6 +35,7 @@ async def send_inspect(websocket, direction):
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     if "No block to inspect" not in response:
+        print(response)
         return response
     else:
         print("fuck you")
@@ -196,11 +197,8 @@ class Turtle:
     async def full_inspect(self):
         results = {}
         results["up"] = await self.inspect_up()
-        print(str(results) + "up")
         results["down"] = await self.inspect_down()
-        print(str(results) + "down")
         results["forward"] = await self.inspect()
-        print(str(results) + "forward")
         await self.turn_left()
         results["left"] = await self.inspect()
         await self.turn_left()
@@ -321,7 +319,6 @@ async def go_mining(turtle):
     blocks = await turtle.full_inspect()
 
     if blocks:
-        print(blocks)
         instructions = dig_valuable(blocks)
 
     for instruction in instructions:

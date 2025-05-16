@@ -53,7 +53,7 @@ function handle_message(message)
 				end
 			else
 				local output = { command_output = bool, command_id = info["id"] }
-				ws.send(textutils.serializeJSON(block_info))
+				ws.send(textutils.serializeJSON(output))
 				do
 					return
 				end
@@ -68,7 +68,7 @@ function handle_message(message)
 				end
 			else
 				local output = { command_output = bool, command_id = info["id"] }
-				ws.send(textutils.serializeJSON(block_info))
+				ws.send(textutils.serializeJSON(output))
 				do
 					return
 				end
@@ -83,7 +83,7 @@ function handle_message(message)
 				end
 			else
 				local output = { command_output = bool, command_id = info["id"] }
-				ws.send(textutils.serializeJSON(block_info))
+				ws.send(textutils.serializeJSON(output))
 				do
 					return
 				end
