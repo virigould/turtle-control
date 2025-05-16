@@ -34,7 +34,10 @@ async def send_inspect(websocket, direction):
     )
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return response
+    if "No block to inspect" not in response:
+        return response
+    else:
+        return None
 
 
 async def send_dig(websocket, direction):
@@ -258,7 +261,7 @@ def dig_valuable(blocks):
     :param blocks: Dictionary like {"up": {...}, "left": {...}, ...}
     :return: List of instructions (e.g. ["dig_down", "turn_left", "dig", ...])
     """
-    valuable_directions = [direction for direction, block in blocks.items() if is_valuable(block)]
+    valuable_directions = [direction for direction, block in blocks.items() if is_valuable(block) and block is not None]
     instructions = []
 
     for direction in ["down", "up", "forward"]:
