@@ -357,6 +357,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_walls()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z += 1
 
@@ -417,6 +418,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_walls()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z -= 1
 
@@ -454,6 +456,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_up()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z -= 1
 
@@ -477,6 +480,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_walls()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z += 1
 
@@ -514,6 +518,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_up()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z += 1
 
@@ -537,6 +542,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_walls()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z -= 1
 
@@ -574,6 +580,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_up()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z -= 1
 
@@ -704,6 +711,7 @@ async def go_mining(turtle):
                 blocks = await turtle.inspect_walls()
                 if blocks:
                     await mine(blocks, turtle)
+                await turtle.dig()
                 await turtle.forward()
                 z += 1
 
@@ -726,6 +734,7 @@ async def go_mining(turtle):
                 blocks = await turtle.inspect_walls()
                 if blocks:
                     await mine(blocks, turtle)
+                await turtle.dig()
                 await turtle.forward()
                 z -= 1
 
