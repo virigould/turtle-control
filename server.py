@@ -376,7 +376,7 @@ async def go_mining(turtle):
 
     #green tunnel (check)
     for i in range(15):
-        blocks = await turtle.inspect_down()
+        blocks = await turtle.inspect_bottom()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -392,7 +392,7 @@ async def go_mining(turtle):
 
     #purple tunnel (check)
     for i in range(15):
-        blocks = await turtle.inspect_up()
+        blocks = await turtle.inspect_top()
         if blocks:
             await mine(blocks, turtle)
         await turtle.forward()
@@ -437,7 +437,7 @@ async def go_mining(turtle):
 
     #green tunnel backwards (check)
     for i in range(15):
-        blocks = await turtle.inspect_down()
+        blocks = await turtle.inspect_bottom()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -453,7 +453,7 @@ async def go_mining(turtle):
 
     #purple tunnel backwards (check)
     for i in range(15):
-        blocks = await turtle.inspect_up()
+        blocks = await turtle.inspect_top()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -499,7 +499,7 @@ async def go_mining(turtle):
 
     # green tunnel (check)
     for i in range(15):
-        blocks = await turtle.inspect_down()
+        blocks = await turtle.inspect_bottom()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -515,7 +515,7 @@ async def go_mining(turtle):
 
     # purple tunnel (check)
     for i in range(15):
-        blocks = await turtle.inspect_up()
+        blocks = await turtle.inspect_top()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -561,7 +561,7 @@ async def go_mining(turtle):
 
     # green tunnel backwards (check)
     for i in range(15):
-        blocks = await turtle.inspect_down()
+        blocks = await turtle.inspect_bottom()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -577,7 +577,7 @@ async def go_mining(turtle):
 
     # purple tunnel backwards (check)
     for i in range(15):
-        blocks = await turtle.inspect_up()
+        blocks = await turtle.inspect_top()
         if blocks:
             await mine(blocks, turtle)
         await turtle.dig()
@@ -604,7 +604,7 @@ async def go_mining(turtle):
         for j in range(3):
             #yellow tunnel
             for k in range(15):
-                blocks = await turtle.inspect_down()
+                blocks = await turtle.inspect_bottom()
                 if blocks:
                     await mine(blocks, turtle)
                 await turtle.dig()
@@ -616,7 +616,7 @@ async def go_mining(turtle):
             await turtle.turn_left()
             #blue tunnel
             for k in range(15):
-                blocks = await turtle.inspect_up()
+                blocks = await turtle.inspect_top()
                 if blocks:
                     await mine(blocks, turtle)
                 await turtle.dig()
@@ -657,7 +657,7 @@ async def go_mining(turtle):
         for j in range(3):
             #green tunnel
             for k in range(15):
-                blocks = await turtle.inspect_down()
+                blocks = await turtle.inspect_bottom()
                 if blocks:
                     await mine(blocks, turtle)
                 await turtle.dig()
@@ -669,7 +669,7 @@ async def go_mining(turtle):
             await turtle.turn_left()
             #purple tunnel
             for k in range(15):
-                blocks = await turtle.inspect_up()
+                blocks = await turtle.inspect_top()
                 if blocks:
                     await mine(blocks, turtle)
                 await turtle.dig()
