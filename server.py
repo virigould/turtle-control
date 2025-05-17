@@ -395,6 +395,7 @@ async def go_mining(turtle):
         blocks = await turtle.inspect_top()
         if blocks:
             await mine(blocks, turtle)
+        await turtle.dig()
         await turtle.forward()
         z += 1
 
