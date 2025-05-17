@@ -345,11 +345,12 @@ async def go_mining(turtle):
         await turtle.down()
         y += 1
 
-
     # start mining (:
     blocks = await turtle.full_inspect()
     if blocks:
         await mine(blocks, turtle)
+
+    await turtle.dig()
 
     #bottom blue tunnel (check)
     for i in range (15):
