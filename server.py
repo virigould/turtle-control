@@ -251,7 +251,7 @@ def is_valuable(block):
     if block is None:
         return False
     name = block.get("name", "")
-    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone","ore"]
+    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone","ore", "gravel"]
     return any(ore in name for ore in valuable_keywords)
 
 def dig_valuable(blocks):
@@ -295,6 +295,41 @@ def dig_valuable(blocks):
 
     return instructions
 
+def y_from(here, y):
+    diff = here["y"] - y
+    return diff
+def x_from(here, x):
+    diff = here["x"] - x
+    return diff
+def z_from(here, z):
+    diff = here["z"] - z
+    return diff
+
+async def mine(blocks, turtle):
+    """
+    Given a turtle and inspection result (blocks), determine valuable blocks
+    and execute mining instructions.
+    """
+    if not blocks:
+        return
+        # map strings to methods
+    instruction_map = {
+        "dig": turtle.dig,
+        "dig_up": turtle.dig_up,
+        "dig_down": turtle.dig_down,
+        "turn_left": turtle.turn_left,
+        "turn_right": turtle.turn_right,
+    }
+    instructions = dig_valuable(blocks)
+
+    for instruction in instructions:
+        action = instruction_map.get(instruction)
+        if action:
+            await action()
+        else:
+            print(f"Unknown instruction: {instruction}")
+
+
 async def go_mining(turtle):
     # store a copy of the home coordinates, and initiate distance variables
     turtle.location = await send_gps(turtle.websocket)
@@ -303,28 +338,443 @@ async def go_mining(turtle):
     y = 0
     z = 0
 
-    # map strings to methods
-    instruction_map = {
-        "dig": turtle.dig,
-        "dig_up": turtle.dig_up,
-        "dig_down": turtle.dig_down,
-        "turn_left": turtle.turn_left,
-        "turn_right": turtle.turn_right,
-    }
-    instructions = []
+    # move the turtle to the desired depth
+    y_distance = y_from(home, -48)
+    for i in range(y_distance):
+        await turtle.dig_down()
+        await turtle.down()
+        y += 1
+
 
     # start mining (:
     blocks = await turtle.full_inspect()
-
     if blocks:
-        instructions = dig_valuable(blocks)
+        await mine(blocks, turtle)
 
-    for instruction in instructions:
-        action = instruction_map.get(instruction)
-        if action:
-            await action()
+    #bottom blue tunnel (check)
+    for i in range (15):
+        blocks = await turtle.inspect_walls()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z += 1
+
+    #bottom blue to green (check)
+    await turtle.turn_left()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.turn_left()
+
+    #green tunnel (check)
+    for i in range(15):
+        blocks = await turtle.inspect_down()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.dig()
+        await turtle.forward()
+        z -= 1
+
+    #green to purple (check)
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.turn_left()
+    await turtle.turn_left()
+
+    #purple tunnel (check)
+    for i in range(15):
+        blocks = await turtle.inspect_up()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z += 1
+
+    #purple to bottom blue (check)
+    await turtle.down()
+    y -= 1
+    await turtle.turn_left()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig_down()
+    await turtle.down()
+    y -= 1
+    await turtle.turn_left()
+
+    # bottom blue tunnel backwards (check)
+    for i in range (15):
+        blocks = await turtle.inspect_walls()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z -= 1
+
+    # bottom blue to green backside (check)
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.turn_right()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.turn_right()
+
+    #green tunnel backwards (check)
+    for i in range(15):
+        blocks = await turtle.inspect_down()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.dig()
+        await turtle.forward()
+        z += 1
+
+    #green to purple (check)
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.turn_left()
+    await turtle.turn_left()
+
+    #purple tunnel backwards (check)
+    for i in range(15):
+        blocks = await turtle.inspect_up()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z -= 1
+
+    # purple backside to bottom blue (check)
+    await turtle.down()
+    y -= 1
+    await turtle.turn_right()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig_down()
+    await turtle.down()
+    y -= 1
+    await turtle.turn_right()
+
+    # bottom blue tunnel (check)
+    for i in range(15):
+        blocks = await turtle.inspect_walls()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z += 1
+
+    # bottom blue to green (check)
+    await turtle.turn_left()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.turn_left()
+
+    # green tunnel (check)
+    for i in range(15):
+        blocks = await turtle.inspect_down()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.dig()
+        await turtle.forward()
+        z -= 1
+
+    # green to purple (check)
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.turn_left()
+    await turtle.turn_left()
+
+    # purple tunnel (check)
+    for i in range(15):
+        blocks = await turtle.inspect_up()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z += 1
+
+    # purple to bottom blue (check)
+    await turtle.down()
+    y -= 1
+    await turtle.turn_left()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig_down()
+    await turtle.down()
+    y -= 1
+    await turtle.turn_left()
+
+    # bottom blue tunnel backwards (check)
+    for i in range(15):
+        blocks = await turtle.inspect_walls()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z -= 1
+
+    # bottom blue to green backside (check)
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.turn_right()
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.dig()
+    await turtle.forward()
+    x += 1
+    await turtle.turn_right()
+
+    # green tunnel backwards (check)
+    for i in range(15):
+        blocks = await turtle.inspect_down()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.dig()
+        await turtle.forward()
+        z += 1
+
+    # green to purple (check)
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+    await turtle.turn_left()
+    await turtle.turn_left()
+
+    # purple tunnel backwards (check)
+    for i in range(15):
+        blocks = await turtle.inspect_up()
+        if blocks:
+            await mine(blocks, turtle)
+        await turtle.forward()
+        z -= 1
+
+    #main chunk
+
+    for i in range(2):
+        #purple to yellow
+        await turtle.turn_left()
+        await turtle.dig()
+        await turtle.forward()
+        x -= 1
+        await turtle.dig()
+        await turtle.forward()
+        x -= 1
+        await turtle.dig_up()
+        await turtle.up()
+        y += 1
+        await turtle.turn_left()
+
+        #yellow and blue tunnels
+        for j in range(3):
+            #yellow tunnel
+            for k in range(15):
+                blocks = await turtle.inspect_down()
+                if blocks:
+                    await mine(blocks, turtle)
+                await turtle.dig()
+                await turtle.forward()
+                z += 1
+            #yellow to blue
+            await turtle.dig_up()
+            await turtle.turn_left()
+            await turtle.turn_left()
+            #blue tunnel
+            for k in range(15):
+                blocks = await turtle.inspect_up()
+                if blocks:
+                    await mine(blocks, turtle)
+                await turtle.dig()
+                await turtle.forward()
+                z -= 1
+            #blue to yellow
+            if j < 3:
+                await turtle.down()
+                await turtle.turn_left()
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.turn_left()
+
+        #blue to green
+        await turtle.turn_right()
+        await turtle.dig()
+        await turtle.forward()
+        x += 1
+        await turtle.dig()
+        await turtle.forward()
+        x += 1
+        await turtle.dig_up()
+        await turtle.up()
+        y += 1
+        await turtle.turn_right()
+
+        #green and purple tunnels
+        for j in range(3):
+            #green tunnel
+            for k in range(15):
+                blocks = await turtle.inspect_down()
+                if blocks:
+                    await mine(blocks, turtle)
+                await turtle.dig()
+                await turtle.forward()
+                z += 1
+            #green to purple
+            await turtle.dig_up()
+            await turtle.turn_left()
+            await turtle.turn_left()
+            #purple tunnel
+            for k in range(15):
+                blocks = await turtle.inspect_up()
+                if blocks:
+                    await mine(blocks, turtle)
+                await turtle.dig()
+                await turtle.forward()
+                z -= 1
+            #purple to green
+            if j < 3:
+                await turtle.down()
+                await turtle.turn_right()
+                await turtle.dig()
+                await turtle.forward()
+                x += 1
+                await turtle.dig()
+                await turtle.forward()
+                x += 1
+                await turtle.dig()
+                await turtle.forward()
+                x += 1
+                await turtle.dig()
+                await turtle.forward()
+                x += 1
+                await turtle.turn_right()
+
+    await turtle.turn_left()
+    await turtle.dig()
+    await turtle.forward()
+    x -= 1
+    await turtle.dig()
+    await turtle.forward()
+    x -= 1
+    await turtle.dig_up()
+    await turtle.up()
+    y += 1
+
+    #top yellow tunnels
+    for i in range(3):
+        if i %2 == 0:
+            for j in range (15):
+                blocks = await turtle.inspect_walls()
+                if blocks:
+                    await mine(blocks, turtle)
+                await turtle.forward()
+                z += 1
+
+            await turtle.turn_right()
+            await turtle.dig()
+            await turtle.forward()
+            x -= 1
+            await turtle.dig()
+            await turtle.forward()
+            x -= 1
+            await turtle.dig()
+            await turtle.forward()
+            x -= 1
+            await turtle.dig()
+            await turtle.forward()
+            x -= 1
+            await turtle.turn_right()
         else:
-            print(f"Unknown instruction: {instruction}")
+            for j in range (15):
+                blocks = await turtle.inspect_walls()
+                if blocks:
+                    await mine(blocks, turtle)
+                await turtle.forward()
+                z -= 1
+
+            if j < 3:
+                await turtle.turn_left()
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.dig()
+                await turtle.forward()
+                x -= 1
+                await turtle.turn_left()
+
+    for i in range(14):
+        if i < 14:
+            turtle.dig_down()
+            turtle.down()
+            y -= 1
+
+    await turtle.down()
+    y -= 1
+    await turtle.turn_left()
+    await turtle.turn_left()
+
+    for i in range(16):
+        turtle.forward()
+        z += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
