@@ -246,6 +246,15 @@ Effectively a test method to try working on if the commands work and return what
 
 Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
 """
+def y_from(here, y):
+    diff = here["y"] - y
+    return diff
+def x_from(here, x):
+    diff = here["x"] - x
+    return diff
+def z_from(here, z):
+    diff = here["z"] - z
+    return diff
 
 def is_valuable(block):
     if block is None:
@@ -294,16 +303,6 @@ def dig_valuable(blocks):
             instructions += turn_map[direction]
 
     return instructions
-
-def y_from(here, y):
-    diff = here["y"] - y
-    return diff
-def x_from(here, x):
-    diff = here["x"] - x
-    return diff
-def z_from(here, z):
-    diff = here["z"] - z
-    return diff
 
 async def mine(blocks, turtle):
     """
@@ -467,6 +466,7 @@ async def go_mining(turtle):
     y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
     
     for i in range(1):
+
         #bottom blue tunnel
         z = await tunnel( turtle, "z", 1, "walls", 15, x, y, z)
     
