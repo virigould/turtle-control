@@ -471,11 +471,11 @@ async def go_mining(turtle):
     # y_distance = y_from(home, -48)
     # y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
     
-    for i in range(1):
+    for i in range(2):
 
         #bottom blue tunnel
         print(37595648465)
-        z = await tunnel(turtle, "z", 1, "walls", 15, x, y, z)
+        z = await tunnel(turtle, "z", 1, "walls", 16, x, y, z)
     
         #bottom blue to green
         print(283964293856)
@@ -483,7 +483,7 @@ async def go_mining(turtle):
     
         #green tunnel
         print(719879324789432)
-        z = await tunnel(turtle, "z", -1, "bottom", 15, x, y, z)
+        z = await tunnel(turtle, "z", -1, "bottom", 16, x, y, z)
     
         #green to purple
         print(536739475632)
@@ -491,7 +491,7 @@ async def go_mining(turtle):
     
         #purple tunnel
         print(638202187346)
-        z = await tunnel(turtle, "z", 1, "top", 15, x, y, z)
+        z = await tunnel(turtle, "z", 1, "top", 16, x, y, z)
     
         #purple to bottom blue
         print(526109176373)
@@ -499,7 +499,7 @@ async def go_mining(turtle):
     
         # bottom blue tunnel backwards
         print(6230232386483)
-        z = await tunnel(turtle, "z", -1, "walls", 15, x, y, z)
+        z = await tunnel(turtle, "z", -1, "walls", 16, x, y, z)
     
         # bottom blue to green backside
         print(7437389267382)
@@ -507,7 +507,7 @@ async def go_mining(turtle):
     
         #green tunnel backwards
         print(7347823764872)
-        z = await tunnel(turtle, "z", 1, "bottom", 15, x, y, z)
+        z = await tunnel(turtle, "z", 1, "bottom", 16, x, y, z)
     
         #green to purple
         print(768908231144323)
@@ -515,7 +515,7 @@ async def go_mining(turtle):
     
         #purple tunnel backwards
         print(63575923625)
-        z = await tunnel(turtle, "z", -1, "top", 15, x, y, z)
+        z = await tunnel(turtle, "z", -1, "top", 16, x, y, z)
         if i == 0:
             # purple backside to bottom blue
             print(6445799976443223)
@@ -525,7 +525,7 @@ async def go_mining(turtle):
     ### MAIN CHUNK ###
     ##################
 
-    for i in range(2):
+    for i in range(3):
 
         #purple to yellow
         print(6564564843893)
@@ -536,7 +536,7 @@ async def go_mining(turtle):
 
             #yellow tunnel
             print(555738367864)
-            z = await tunnel(turtle, "z", 1, "bottom", 15, x, y, z)
+            z = await tunnel(turtle, "z", 1, "bottom", 16, x, y, z)
 
             #yellow to blue
             print(66781117785483)
@@ -544,7 +544,7 @@ async def go_mining(turtle):
 
             #blue tunnel
             print(66567784839)
-            z = await tunnel(turtle, "z", -1, "top", 15, x, y, z)
+            z = await tunnel(turtle, "z", -1, "top", 16, x, y, z)
 
             if j < 3:
                 #blue to yellow
@@ -556,11 +556,11 @@ async def go_mining(turtle):
         x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
 
         #green and purple tunnels
-        for j in range(3):
+        for j in range(4):
 
             #green tunnel
             print(675248962345089778)
-            z = await tunnel(turtle, "z", 1, "bottom", 15, x, y, z)
+            z = await tunnel(turtle, "z", 1, "bottom", 16, x, y, z)
 
             #green to purple
             print(6789495876563743)
@@ -568,7 +568,7 @@ async def go_mining(turtle):
 
             #purple tunnel
             print(785348752345467)
-            z = await tunnel(turtle, "z", -1, "top", 15, x, y, z)
+            z = await tunnel(turtle, "z", -1, "top", 16, x, y, z)
 
 
             if j < 3:
@@ -581,12 +581,12 @@ async def go_mining(turtle):
     x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
 
     #top yellow tunnels
-    for i in range(3):
+    for i in range(4):
         if i %2 == 0:
 
             #tunnel
             print(23458900007544)
-            z = await tunnel(turtle,"z", 1, "walls", 15, x, y, z)
+            z = await tunnel(turtle,"z", 1, "walls", 16, x, y, z)
 
             #to next tunnel
             print(754789097453)
@@ -595,7 +595,7 @@ async def go_mining(turtle):
         else:
             #tunnel opposite direction
             print(4356789767432)
-            z = await tunnel(turtle, "z", 1, "walls", 15, x, y, z)
+            z = await tunnel(turtle, "z", 1, "walls", 16, x, y, z)
 
             #to next tunnel but only on the first pass
             if i < 3:
@@ -604,7 +604,7 @@ async def go_mining(turtle):
 
     # return to start position
     print(678900034742387564)
-    y = await tunnel(turtle, "y", -1, "down", 14, x, y, z)
+    y = await tunnel(turtle, "y", -1, "down", 16, x, y, z)
     await turtle.down()
     y -= 1
 
@@ -613,7 +613,7 @@ async def go_mining(turtle):
     await turtle.turn_left()
 
     #move to next chunk
-    for i in range(16):
+    for i in range(17):
         await turtle.forward()
         z += 1
 
