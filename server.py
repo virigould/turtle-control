@@ -260,7 +260,7 @@ def is_valuable(block):
     if block is None:
         return False
     name = block.get("name", "")
-    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone","ore", "gravel"]
+    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone","ore"]
     return any(ore in name for ore in valuable_keywords)
 
 def dig_valuable(blocks):
@@ -462,8 +462,8 @@ async def go_mining(turtle):
     z = 0
 
     # move the turtle to the desired depth
-    y_distance = y_from(home, -48)
-    y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
+    # y_distance = y_from(home, -48)
+    # y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
     
     for i in range(1):
 
