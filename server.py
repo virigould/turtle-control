@@ -356,6 +356,7 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
             if blocks:
                 await mine(blocks, turtle)
             await turtle.dig()
+            print("should be here")
             await turtle.forward()
             if axis == "x":
                 x += direction
@@ -371,6 +372,7 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
             else:
                 await turtle.up()
             y += direction
+            print("should not be here")
             return y
 
 async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
@@ -469,7 +471,7 @@ async def go_mining(turtle):
 
         #bottom blue tunnel
         print(37595648465)
-        z = await tunnel( turtle, "z", 1, "walls", 15, x, y, z)
+        z = await tunnel(turtle, "z", 1, "walls", 15, x, y, z)
     
         #bottom blue to green
         print(283964293856)
