@@ -342,17 +342,17 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
     """
 
     pattern_map = {
-        "walls": turtle.inspect_walls(),
-        "top": turtle.inspect_top(),
-        "bottom": turtle.inspect_bottom(),
-        "up": turtle.dig_up(),
-        "down": turtle.dig_down()
+        "walls": turtle.inspect_walls,
+        "top": turtle.inspect_top,
+        "bottom": turtle.inspect_bottom,
+        "up": turtle.dig_up,
+        "down": turtle.dig_down
     }
 
     for i in range(n):
-        if axis == ("x" or "z"):
+        if axis in ("x","z"):
             action = pattern_map.get(pattern)
-            blocks = await action
+            blocks = await action()
             if blocks:
                 await mine(blocks, turtle)
             await turtle.dig()
@@ -365,7 +365,7 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
                 return z
         else:
             action = pattern_map.get(pattern)
-            await action
+            await action()
             if direction < 0:
                 await turtle.down()
             else:
@@ -385,30 +385,30 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
     :return: x, y, z
     """
     reflection_map = {
-        "right": turtle.turn_right(),
-        "left": turtle.turn_left()
+        "right": turtle.turn_right,
+        "left": turtle.turn_left
     }
 
     if transition_type == "interior":
         action = reflection_map.get[reflection]
         await turtle.dig_up()
         await turtle.up()
-        await action
-        await action
+        await action()
+        await action()
         y += 1
         return x, y, z
 
     elif transition_type == "bottom trough to top trough":
         action = reflection_map.get[reflection]
         await turtle.down()
-        await action
+        await action()
         await turtle.dig()
         await turtle.forward()
         await turtle.dig()
         await turtle.forward()
         await turtle.dig_down()
         await turtle.down()
-        await action
+        await action()
         y -= 2
         if reflection == "left":
             x += 2
@@ -418,14 +418,14 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
 
     elif transition_type == "top trough to bottom trough":
         action = reflection_map.get[reflection]
-        await action
+        await action()
         await turtle.dig()
         await turtle.forward()
         await turtle.dig_up()
         await turtle.up()
         await turtle.dig()
         await turtle.forward()
-        await action
+        await action()
         y += 1
         if reflection == "left":
             x += 2
@@ -436,7 +436,7 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
     elif transition_type == "interior to interior":
         action = reflection_map.get[reflection]
         await turtle.down()
-        await action
+        await action()
         await turtle.dig()
         await turtle.forward()
         await turtle.dig()
@@ -445,7 +445,7 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         await turtle.forward()
         await turtle.dig()
         await turtle.forward()
-        await action
+        await action()
         y -= 1
         if reflection == "right":
             x += 4
@@ -473,7 +473,7 @@ async def go_mining(turtle):
     
         #bottom blue to green
         print(283964293856)
-        x, y, z = tunnel_transition(turtle, x, y, z,"top trough to bottom trough", "left")
+        x, y, z = await tunnel_transition(turtle, x, y, z,"top trough to bottom trough", "left")
     
         #green tunnel
         print(719879324789432)
@@ -481,7 +481,7 @@ async def go_mining(turtle):
     
         #green to purple
         print(536739475632)
-        x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
+        x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
     
         #purple tunnel
         print(638202187346)
@@ -489,7 +489,7 @@ async def go_mining(turtle):
     
         #purple to bottom blue
         print(526109176373)
-        x, y, z = tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "left")
+        x, y, z = await tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "left")
     
         # bottom blue tunnel backwards
         print(6230232386483)
@@ -497,7 +497,7 @@ async def go_mining(turtle):
     
         # bottom blue to green backside
         print(7437389267382)
-        x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
+        x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
     
         #green tunnel backwards
         print(7347823764872)
@@ -505,7 +505,7 @@ async def go_mining(turtle):
     
         #green to purple
         print(768908231144323)
-        x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
+        x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
     
         #purple tunnel backwards
         print(63575923625)
@@ -513,7 +513,7 @@ async def go_mining(turtle):
         if i == 0:
             # purple backside to bottom blue
             print(6445799976443223)
-            x, y, z = tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "right")
+            x, y, z = await tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "right")
 
     ##################
     ### MAIN CHUNK ###
@@ -523,7 +523,7 @@ async def go_mining(turtle):
 
         #purple to yellow
         print(6564564843893)
-        x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
+        x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
 
         #yellow and blue tunnels
         for j in range(3):
@@ -534,7 +534,7 @@ async def go_mining(turtle):
 
             #yellow to blue
             print(66781117785483)
-            x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
+            x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
 
             #blue tunnel
             print(66567784839)
@@ -543,11 +543,11 @@ async def go_mining(turtle):
             if j < 3:
                 #blue to yellow
                 print(9987637433784)
-                x, y, z = tunnel_transition(turtle, x, y, z, "interior to interior", "left")
+                x, y, z = await tunnel_transition(turtle, x, y, z, "interior to interior", "left")
 
         #blue to green
         print(9865432345678)
-        x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
+        x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
 
         #green and purple tunnels
         for j in range(3):
@@ -558,7 +558,7 @@ async def go_mining(turtle):
 
             #green to purple
             print(6789495876563743)
-            x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
+            x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
 
             #purple tunnel
             print(785348752345467)
@@ -568,11 +568,11 @@ async def go_mining(turtle):
             if j < 3:
                 #purple to green
                 print(678937467689832)
-                x,y,z = tunnel_transition(turtle, x, y, z, "interior to interior", "right")
+                x,y,z = await tunnel_transition(turtle, x, y, z, "interior to interior", "right")
 
     #green to yellow
     print(2345678900975)
-    x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
+    x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
 
     #top yellow tunnels
     for i in range(3):
@@ -584,7 +584,7 @@ async def go_mining(turtle):
 
             #to next tunnel
             print(754789097453)
-            x, y, z = tunnel_transition(turtle, x, y, z, "interior to interior", "right")
+            x, y, z = await tunnel_transition(turtle, x, y, z, "interior to interior", "right")
 
         else:
             #tunnel opposite direction
@@ -594,7 +594,7 @@ async def go_mining(turtle):
             #to next tunnel but only on the first pass
             if i < 3:
                 print(34578999945673)
-                x,y,z = tunnel_transition(turtle, x, y, z, "interior to interior", "left")
+                x,y,z = await tunnel_transition(turtle, x, y, z, "interior to interior", "left")
 
     # return to start position
     print(678900034742387564)
