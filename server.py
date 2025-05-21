@@ -360,10 +360,8 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
             await turtle.forward()
             if axis == "x":
                 x += direction
-                return x
             elif axis == "z":
                 z += direction
-                return z
         else:
             action = pattern_map.get(pattern)
             await action()
@@ -373,7 +371,13 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
                 await turtle.up()
             y += direction
             print("should not be here")
-            return y
+
+    if axis == "x":
+        return x
+    elif axis == "y":
+        return y
+    elif axis == "z":
+        return z
 
 async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
     """
