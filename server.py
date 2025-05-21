@@ -390,7 +390,7 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
     }
 
     if transition_type == "interior":
-        action = reflection_map.get[reflection]
+        action = reflection_map.get(reflection)
         await turtle.dig_up()
         await turtle.up()
         await action()
@@ -399,7 +399,7 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         return x, y, z
 
     elif transition_type == "bottom trough to top trough":
-        action = reflection_map.get[reflection]
+        action = reflection_map.get(reflection)
         await turtle.down()
         await action()
         await turtle.dig()
@@ -417,7 +417,7 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         return x, y, z
 
     elif transition_type == "top trough to bottom trough":
-        action = reflection_map.get[reflection]
+        action = reflection_map.get(reflection)
         await action()
         await turtle.dig()
         await turtle.forward()
@@ -434,7 +434,7 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         return x, y, z
 
     elif transition_type == "interior to interior":
-        action = reflection_map.get[reflection]
+        action = reflection_map.get(reflection)
         await turtle.down()
         await action()
         await turtle.dig()
