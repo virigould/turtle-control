@@ -468,39 +468,51 @@ async def go_mining(turtle):
     for i in range(1):
 
         #bottom blue tunnel
+        print(37595648465)
         z = await tunnel( turtle, "z", 1, "walls", 15, x, y, z)
     
         #bottom blue to green
+        print(283964293856)
         x, y, z = tunnel_transition(turtle, x, y, z,"top trough to bottom trough", "left")
     
         #green tunnel
+        print(719879324789432)
         z = await tunnel(turtle, "z", -1, "bottom", 15, x, y, z)
     
         #green to purple
+        print(536739475632)
         x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
     
         #purple tunnel
+        print(638202187346)
         z = await tunnel(turtle, "z", 1, "top", 15, x, y, z)
     
         #purple to bottom blue
+        print(526109176373)
         x, y, z = tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "left")
     
         # bottom blue tunnel backwards
+        print(6230232386483)
         z = await tunnel(turtle, "z", -1, "walls", 15, x, y, z)
     
         # bottom blue to green backside
+        print(7437389267382)
         x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
     
         #green tunnel backwards
+        print(7347823764872)
         z = await tunnel(turtle, "z", 1, "bottom", 15, x, y, z)
     
         #green to purple
+        print(768908231144323)
         x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
     
         #purple tunnel backwards
+        print(63575923625)
         z = await tunnel(turtle, "z", -1, "top", 15, x, y, z)
         if i == 0:
             # purple backside to bottom blue
+            print(6445799976443223)
             x, y, z = tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "right")
 
     ##################
@@ -510,44 +522,56 @@ async def go_mining(turtle):
     for i in range(2):
 
         #purple to yellow
+        print(6564564843893)
         x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
 
         #yellow and blue tunnels
         for j in range(3):
 
             #yellow tunnel
+            print(555738367864)
             z = await tunnel(turtle, "z", 1, "bottom", 15, x, y, z)
 
             #yellow to blue
+            print(66781117785483)
             x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
 
             #blue tunnel
+            print(66567784839)
             z = await tunnel(turtle, "z", -1, "top", 15, x, y, z)
 
-            #blue to yellow
             if j < 3:
+                #blue to yellow
+                print(9987637433784)
                 x, y, z = tunnel_transition(turtle, x, y, z, "interior to interior", "left")
 
         #blue to green
+        print(9865432345678)
         x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
 
         #green and purple tunnels
         for j in range(3):
 
             #green tunnel
+            print(675248962345089778)
             z = await tunnel(turtle, "z", 1, "bottom", 15, x, y, z)
 
             #green to purple
+            print(6789495876563743)
             x, y, z = tunnel_transition(turtle, x, y, z, "interior", "left")
 
             #purple tunnel
+            print(785348752345467)
             z = await tunnel(turtle, "z", -1, "top", 15, x, y, z)
 
-            #purple to green
+
             if j < 3:
+                #purple to green
+                print(678937467689832)
                 x,y,z = tunnel_transition(turtle, x, y, z, "interior to interior", "right")
 
     #green to yellow
+    print(2345678900975)
     x, y, z = tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
 
     #top yellow tunnels
@@ -555,20 +579,25 @@ async def go_mining(turtle):
         if i %2 == 0:
 
             #tunnel
+            print(23458900007544)
             z = await tunnel(turtle,"z", 1, "walls", 15, x, y, z)
 
             #to next tunnel
+            print(754789097453)
             x, y, z = tunnel_transition(turtle, x, y, z, "interior to interior", "right")
 
         else:
             #tunnel opposite direction
+            print(4356789767432)
             z = await tunnel(turtle, "z", 1, "walls", 15, x, y, z)
 
             #to next tunnel but only on the first pass
             if i < 3:
+                print(34578999945673)
                 x,y,z = tunnel_transition(turtle, x, y, z, "interior to interior", "left")
 
     # return to start position
+    print(678900034742387564)
     y = await tunnel(turtle, "y", -1, "down", 14, x, y, z)
     await turtle.down()
     y -= 1
