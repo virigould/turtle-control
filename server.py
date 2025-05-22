@@ -677,6 +677,7 @@ async def orient(turtle):
         await turtle.forward()
     await turtle.turn_left()
     await turtle.turn_left()
+    print("in orient:", "\n", baseline, "\n", new, "\n", dx, "\n", dz, "\n", direction)
     return axis, direction
 
 async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
@@ -709,11 +710,13 @@ async def fly(turtle, axis, direction, home):
         for i in range(abs(dz)):
             await turtle.forward()
 
+
 async def go_home(turtle, home, x, y, z):
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 280)
     await tunnel(turtle, "y", 1, "up", y_distance, x, y, z)
     axis, direction = await orient(turtle)
+    print("in go_home:", "\n", axis, "\n", direction)
     await fly(turtle, axis, direction, home)
     current = await send_gps(turtle.websocket)
     y_distance = y_from(current, home.get("y"))
