@@ -27,7 +27,7 @@ async def send_gps(websocket):
 
 
 async def send_inspect(websocket, direction):
-    print("in send inspect")
+    # print("in send inspect")
     id = str(uuid.uuid4())
     await websocket.send(
         json.dumps({"id": id, "type": "inspect", "direction": direction})
@@ -356,7 +356,6 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
             if blocks:
                 await mine(blocks, turtle)
             await turtle.dig()
-            print("should be here")
             await turtle.forward()
             if axis == "x":
                 x += direction
@@ -370,7 +369,6 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
             else:
                 await turtle.up()
             y += direction
-            print("should not be here")
 
     if axis == "x":
         return x
@@ -647,15 +645,15 @@ async def go_mining(turtle):
 
 async def handle_message(websocket):
     async for message in websocket:
-        print("Message: " + message)
+        # print("Message: " + message)
         mssg = json.loads(message)
         if "computer_name" in mssg:
             client_id = mssg["computer_name"]
-            print(client_id)
+            # print(client_id)
             if client_id not in clients:
                 clients[client_id] = websocket
             if "job" in mssg:
-                print(mssg["job"])
+                # print(mssg["job"])
                 if mssg["job"] == "miner":
                     # this has to be in the background and can not be awaited as it will block all the threads
                     turtle = Turtle(mssg["computer_name"], websocket)
@@ -675,7 +673,7 @@ async def handle_client(websocket):
 
         # await websocket.send(json.dumps({'type': 'eval', 'command': 'turtle.turnLeft()'}))
         # await go_mining(websocket)
-        print("Just sent the test message")
+        # print("Just sent the test message")
 
     except websockets.exceptions.ConnectionClosed as e:
         print("The websocket closed unexpectedly: " + str(e))
