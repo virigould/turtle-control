@@ -663,8 +663,8 @@ async def orient(turtle):
     new = await send_gps(turtle.websocket)
     axis = None
     direction = None
-    dx = new[0] - baseline[0]
-    dz = new[2] - baseline[2]
+    dx = new.get("x") - baseline.get("x")
+    dz = new.get("z") - baseline.get("z")
     if dx != 0:
         axis = "x"
         direction = 1 if dx > 0 else -1
@@ -697,13 +697,13 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
 
 async def fly(turtle, axis, direction, home):
     current = await send_gps(turtle.websocket)
-    dx = home[0] - current[0]
+    dx = home.get("x") - current.get("x")
     if dx != 0:
         await face_axis(turtle, axis, direction, "x", dx)
         for i in range(abs(dx)):
             await turtle.forward()
     current = await send_gps(turtle.websocket)
-    dz = home[2] - current[2]
+    dz = home.get("z") - current.get("z")
     if dz != 0:
         await face_axis(turtle, axis, direction, "z", dz)
         for i in range(abs(dz)):
@@ -716,7 +716,7 @@ async def go_home(turtle, home, x, y, z):
     axis, direction = await orient(turtle)
     await fly(turtle, axis, direction, home)
     current = await send_gps(turtle.websocket)
-    y_distance = y_from(current, home[1])
+    y_distance = y_from(current, home.get("y"))
     direction = 1 if y_distance > 0 else -1
     await tunnel(turtle, "y", direction, "down" if direction < 0 else "up", abs(y_distance), x, y, z)
 
