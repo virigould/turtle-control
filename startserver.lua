@@ -429,7 +429,6 @@ end
 
 function main()
     local length = #args
-    print(length)
 	if file_exists("computer_info.txt") then
 		local file = io.open("computer_info.txt", "r")
 		computer_info = textutils.unserialize(file:read("*all"))

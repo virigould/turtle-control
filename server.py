@@ -465,6 +465,20 @@ async def go_mining(turtle):
     y = 0
     z = 0
 
+    for i in range(50):
+        await turtle.forward()
+    for i in range(50):
+        await turtle.up()
+    await turtle.turn_right()
+    for i in range(25):
+        await turtle.forward()
+    await turtle.turn_left()
+    for i in range(15):
+        await turtle.forward()
+
+    await go_home(turtle, home, x, y, z)
+
+'''
     # move the turtle to the desired depth
     # y_distance = y_from(home, -48)
     # y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
@@ -602,7 +616,7 @@ async def go_mining(turtle):
 
     # return to start position
     print(678900034742387564)
-    y = await tunnel(turtle, "y", -1, "down", 16, x, y, z)
+    y = await tunnel(turtle, "y", -1, "down", 15, x, y, z)
     await turtle.down()
     y -= 1
 
@@ -641,10 +655,70 @@ async def go_mining(turtle):
 #             await asyncio.sleep(interval)
 #         except websockets.ConnectionClosed:
 #             break
+'''
+async def orient(turtle):
+    baseline = await send_gps(turtle.websocket)
+    for i in range(5):
+        await turtle.forward()
+    new = await send_gps(turtle.websocket)
+    axis = None
+    direction = None
+    dx = new[0] - baseline[0]
+    dz = new[2] - baseline[2]
+    if dx != 0:
+        axis = "x"
+        direction = 1 if dx > 0 else -1
+    elif dz != 0:
+        axis = "z"
+        direction = 1 if dz > 0 else -1
+    await turtle.turn_left()
+    await turtle.turn_left()
+    for i in range(5):
+        await turtle.forward()
+    await turtle.turn_left()
+    await turtle.turn_left()
+    return axis, direction
 
-# async def go_home(turtle, home, x, y, z):
+async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
+    if facing_axis == target_axis:
+        if (distance > 0 and facing_dir == 1) or (distance < 0 and facing_dir == -1):
+            return
+        else:
+            await turtle.turn_left()
+            await turtle.turn_left()
+    else:
+        if (facing_axis, facing_dir, target_axis, distance > 0) in [
+            ("x", 1, "z", True), ("z", -1, "x", True),
+            ("x", -1, "z", False), ("z", 1, "x", False)
+        ]:
+            await turtle.turn_right()
+        else:
+            await turtle.turn_left()
 
+async def fly(turtle, axis, direction, home):
+    current = await send_gps(turtle.websocket)
+    dx = home[0] - current[0]
+    if dx != 0:
+        await face_axis(turtle, axis, direction, "x", dx)
+        for i in range(abs(dx)):
+            await turtle.forward()
+    current = await send_gps(turtle.websocket)
+    dz = home[2] - current[2]
+    if dz != 0:
+        await face_axis(turtle, axis, direction, "z", dz)
+        for i in range(abs(dz)):
+            await turtle.forward()
 
+async def go_home(turtle, home, x, y, z):
+    here = await send_gps(turtle.websocket)
+    y_distance = y_from(here, 280)
+    await tunnel(turtle, "y", 1, "up", y_distance, x, y, z)
+    axis, direction = await orient(turtle)
+    await fly(turtle, axis, direction, home)
+    current = await send_gps(turtle.websocket)
+    y_distance = y_from(current, home[1])
+    direction = 1 if y_distance > 0 else -1
+    await tunnel(turtle, "y", direction, "down" if direction < 0 else "up", abs(y_distance), x, y, z)
 
 async def handle_message(websocket):
     async for message in websocket:
