@@ -642,7 +642,7 @@ async def go_mining(turtle):
 #         except websockets.ConnectionClosed:
 #             break
 
-async def go_home(turtle, home, x, y, z):
+# async def go_home(turtle, home, x, y, z):
 
 
 
