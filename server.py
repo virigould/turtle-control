@@ -461,19 +461,21 @@ async def go_mining(turtle):
     # store a copy of the home coordinates, and initiate distance variables
     turtle.location = await send_gps(turtle.websocket)
     home = turtle.location.copy()
+    print(home)
+    print(turtle.location)
     x = 0
     y = 0
     z = 0
 
-    for i in range(50):
-        await turtle.forward()
-    for i in range(50):
-        await turtle.up()
-    await turtle.turn_right()
     for i in range(25):
         await turtle.forward()
-    await turtle.turn_left()
+    for i in range(25):
+        await turtle.up()
+    await turtle.turn_right()
     for i in range(15):
+        await turtle.forward()
+    await turtle.turn_left()
+    for i in range(7):
         await turtle.forward()
 
     await go_home(turtle, home, x, y, z)
