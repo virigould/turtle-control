@@ -530,7 +530,7 @@ async def go_mining(turtle):
         x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
 
         #yellow and blue tunnels
-        for j in range(3):
+        for j in range(4):
 
             #yellow tunnel
             print(555738367864)
@@ -641,6 +641,9 @@ async def go_mining(turtle):
 #             await asyncio.sleep(interval)
 #         except websockets.ConnectionClosed:
 #             break
+
+async def go_home(turtle, home, x, y, z):
+
 
 
 async def handle_message(websocket):

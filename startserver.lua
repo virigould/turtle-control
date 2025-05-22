@@ -1,6 +1,8 @@
 local random = math.random
 local ws, err = http.websocket("ws://localhost:7788")
 local computer_info = nil
+local args = {...}
+
 
 local function uuid()
 	local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
