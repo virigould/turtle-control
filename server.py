@@ -481,7 +481,7 @@ async def go_mining(turtle):
         await turtle.forward()
 
     print("coordinates: x,-133 y,189 z,-183")
-    print("correct actions: -3,x -13,z -46,y ")
+    print("correct actions: -3,x -13,z -16,y ")
 
     await go_home(turtle, home, x, y, z)
 
@@ -700,28 +700,37 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
     print(f"attempting to face {'forward' if distance > 0 else 'backwards'} on {target_axis} axis. "
           f"Currently facing {'forward' if facing_dir == 1 else 'backwards'} on {facing_axis} axis.")
 
+    target_dir = 1 if distance > 0 else -1
+
     if facing_axis == target_axis:
-        if (distance > 0 and facing_dir == 1) or (distance < 0 and facing_dir == -1):
+        if facing_dir == target_dir:
             print("correct axis, correct direction, no action needed.")
             return
         else:
             print("correct axis, wrong direction, turning around")
             await turtle.turn_left()
             await turtle.turn_left()
-    else:
-        turn_right_cases = [
-            ("x", 1, "z"),  # facing +x, want +z
-            ("z", -1, "x"),  # facing -z, want +x
-            ("x", -1, "z"),  # facing -x, want -z
-            ("z", 1, "x"),  # facing +z, want -x
-        ]
+            return
 
-        if (facing_axis, facing_dir, target_axis) in turn_right_cases:
-            print("wrong axis, turn right")
-            await turtle.turn_right()
-        else:
-            print("wrong axis, turn left")
-            await turtle.turn_left()
+    # Define cardinal directions in clockwise order
+    cardinals = [("x", 1), ("z", 1), ("x", -1), ("z", -1)]
+
+    current_index = cardinals.index((facing_axis, facing_dir))
+    target_index = cardinals.index((target_axis, target_dir))
+    diff = (target_index - current_index) % 4
+
+    if diff == 1:
+        print("wrong axis, turn right")
+        await turtle.turn_right()
+    elif diff == 3:
+        print("wrong axis, turn left")
+        await turtle.turn_left()
+    elif diff == 2:
+        print("wrong axis, turning around")
+        await turtle.turn_left()
+        await turtle.turn_left()
+    else:
+        print("unexpected direction difference")
 
 async def fly(turtle, axis, direction, home):
     (print("starting fly routine......"))
