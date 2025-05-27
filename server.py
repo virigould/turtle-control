@@ -715,7 +715,7 @@ async def fly(turtle, axis, direction, home):
 
 async def go_home(turtle, home, x, y, z):
     here = await send_gps(turtle.websocket)
-    y_distance = y_from(here, 280)
+    y_distance = y_from(here, 200)
     await tunnel(turtle, "y", 1, "up", y_distance, x, y, z)
     axis, direction = await orient(turtle)
     print("in go_home:", "\n", axis, "\n", direction)
