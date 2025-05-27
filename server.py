@@ -729,8 +729,6 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
         print("wrong axis, turning around")
         await turtle.turn_left()
         await turtle.turn_left()
-    else:
-        print("unexpected direction difference")
 
 async def fly(turtle, axis, direction, home):
     (print("starting fly routine......"))
