@@ -713,7 +713,11 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
             return
 
     # Define cardinal directions in clockwise order
-    cardinals = [("x", 1), ("z", 1), ("x", -1), ("z", -1)]
+    # north = z-
+    # east = x+
+    # south = z+
+    # west = x-
+    cardinals = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
 
     current_index = cardinals.index((facing_axis, facing_dir))
     target_index = cardinals.index((target_axis, target_dir))
