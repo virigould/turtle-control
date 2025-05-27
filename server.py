@@ -441,14 +441,9 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         action = reflection_map.get(reflection)
         await turtle.down()
         await action()
-        await turtle.dig()
-        await turtle.forward()
-        await turtle.dig()
-        await turtle.forward()
-        await turtle.dig()
-        await turtle.forward()
-        await turtle.dig()
-        await turtle.forward()
+        for i in range(4):
+            await turtle.dig()
+            await turtle.forward()
         await action()
         y -= 1
         if reflection == "right":
@@ -659,6 +654,7 @@ async def go_mining(turtle):
 #             break
 '''
 async def orient(turtle):
+    print("beginning orientation")
     baseline = await send_gps(turtle.websocket)
     for i in range(5):
         await turtle.forward()
@@ -679,14 +675,17 @@ async def orient(turtle):
         await turtle.forward()
     await turtle.turn_left()
     await turtle.turn_left()
-    print("in orient:", "\n", baseline, "\n", new, "\n", dx, "\n", dz, "\n", direction)
+    print("orientation results......", "\nBaseline: ", baseline, "\nNew: ", new, "\nDX: ", dx, "\nDZ: ", dz, "\nDirection: ", direction, "\nDetermined Axis: ", axis)
     return axis, direction
 
 async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
+    print(f"attempting to face {"forward" if distance > 0 else "backwards"} on {target_axis} axis. Currently facing {"forward" if facing_dir == 1 else "backwards"} on {facing_axis} axis.")
     if facing_axis == target_axis:
         if (distance > 0 and facing_dir == 1) or (distance < 0 and facing_dir == -1):
+            print("correct axis, correct direction, no action needed.")
             return
         else:
+            print("correct axis, wrong direction, turning around")
             await turtle.turn_left()
             await turtle.turn_left()
     else:
@@ -694,35 +693,45 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
             ("x", 1, "z", True), ("z", -1, "x", True),
             ("x", -1, "z", False), ("z", 1, "x", False)
         ]:
+            print("wrong axis, turn right")
             await turtle.turn_right()
         else:
+            print("wrong axis, turn left")
             await turtle.turn_left()
 
 async def fly(turtle, axis, direction, home):
+    (print("starting fly routine......"))
     current = await send_gps(turtle.websocket)
     dx = home.get("x") - current.get("x")
+    print("x blocks from current to home: " ,dx)
     if dx != 0:
+        print("face home on x axis")
         await face_axis(turtle, axis, direction, "x", dx)
+        print( f"moving towards home {abs(dx)} blocks ")
         for i in range(abs(dx)):
             await turtle.forward()
     current = await send_gps(turtle.websocket)
     dz = home.get("z") - current.get("z")
+    print("z blocks from current to home: ", dz)
     if dz != 0:
+        print("face home on z axis")
         await face_axis(turtle, axis, direction, "z", dz)
+        print(f"moving towards home {abs(dz)} blocks")
         for i in range(abs(dz)):
             await turtle.forward()
-
 
 async def go_home(turtle, home, x, y, z):
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 200)
+    print(f"ascending {y_distance} blocks")
     await tunnel(turtle, "y", 1, "up", y_distance, x, y, z)
     axis, direction = await orient(turtle)
-    print("in go_home:", "\n", axis, "\n", direction)
+    print("Attempting to go home:", "\nCurrent Axis: ", axis, "\nFacing(+/-): ", direction)
     await fly(turtle, axis, direction, home)
     current = await send_gps(turtle.websocket)
     y_distance = y_from(current, home.get("y"))
     direction = 1 if y_distance > 0 else -1
+    print(f"{"descending" if y_distance < 0 else "ascending"} {abs(y_distance)} blocks")
     await tunnel(turtle, "y", direction, "down" if direction < 0 else "up", abs(y_distance), x, y, z)
 
 async def handle_message(websocket):
