@@ -672,8 +672,8 @@ async def orient(turtle):
     for i in range(5):
         await turtle.forward()
     new = await send_gps(turtle.websocket)
-    dx = baseline.get("x") - new.get("x")
-    dz = baseline.get("z") - new.get("z")
+    dx = new.get("x") - baseline.get("x")
+    dz = new.get("z") - baseline.get("z")
     if dx != 0:
         axis = "x"
         direction = 1 if dx > 0 else -1
@@ -746,7 +746,7 @@ async def fly(turtle, axis, direction, home):
 
 async def go_home(turtle, home, x, y, z):
     here = await send_gps(turtle.websocket)
-    y_distance = y_from(here, 200)
+    y_distance = y_from(here, 170)
     print(f"ascending {y_distance} blocks")
     await tunnel(turtle, "y", 1, "up", y_distance, x, y, z)
     axis, direction = await orient(turtle)
