@@ -247,13 +247,13 @@ Effectively a test method to try working on if the commands work and return what
 Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
 """
 def y_from(here, y):
-    diff = here["y"] - y
+    diff = y - here["y"]
     return diff
 def x_from(here, x):
-    diff = here["x"] - x
+    diff = x - here["x"]
     return diff
 def z_from(here, z):
-    diff = here["z"] - z
+    diff = z - here["z"]
     return diff
 
 def is_valuable(block):
@@ -462,16 +462,26 @@ async def go_mining(turtle):
     y = 0
     z = 0
 
-    for i in range(25):
+    print("currently facing z+ at -196")
+    for i in range(10):
+        print("z +10 blocks to -186")
         await turtle.forward()
-    for i in range(25):
+    for i in range(10):
+        print("y = 164")
         await turtle.up()
     await turtle.turn_right()
-    for i in range(15):
+    print("turned to x- at -128")
+    for i in range(5):
+        print("x -5 to -133")
         await turtle.forward()
     await turtle.turn_left()
-    for i in range(7):
+    print("facing z+")
+    for i in range(3):
+        print("z +3 blocks to -183")
         await turtle.forward()
+
+    print("coordinates: x,-133 y,189 z,-183")
+    print("correct actions: -3,x -13,z -46,y ")
 
     await go_home(turtle, home, x, y, z)
 
@@ -662,14 +672,14 @@ async def orient(turtle):
     for i in range(5):
         await turtle.forward()
     new = await send_gps(turtle.websocket)
-    dx = new.get("x") - baseline.get("x")
-    dz = new.get("z") - baseline.get("z")
+    dx = baseline.get("x") - new.get("x")
+    dz = baseline.get("z") - new.get("z")
     if dx != 0:
         axis = "x"
-        direction = -1 if dx > 0 else 1
+        direction = 1 if dx > 0 else -1
     elif dz != 0:
         axis = "z"
-        direction = -1 if dz > 0 else 1
+        direction = 1 if dz > 0 else -1
     #return the turtle to its original position in its original orientation
     await turtle.turn_left()
     await turtle.turn_left()
