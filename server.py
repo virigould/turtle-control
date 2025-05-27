@@ -364,9 +364,9 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
         else:
             action = pattern_map.get(pattern)
             await action()
-            if direction < 0:
+            if pattern == "down":
                 await turtle.down()
-            else:
+            elif pattern == "up":
                 await turtle.up()
             y += direction
 
@@ -476,9 +476,9 @@ async def go_mining(turtle):
     await go_home(turtle, home, x, y, z)
 
 '''
-    # move the turtle to the desired depth
-    # y_distance = y_from(home, -48)
-    # y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
+    move the turtle to the desired depth
+    y_distance = y_from(home, -48)
+    y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
     
     for i in range(2):
 
@@ -655,31 +655,41 @@ async def go_mining(turtle):
 '''
 async def orient(turtle):
     print("beginning orientation")
+    #test to see what axis changes in forward motion, and whether the change is positive or negative.
+    axis = None
+    direction = None
     baseline = await send_gps(turtle.websocket)
     for i in range(5):
         await turtle.forward()
     new = await send_gps(turtle.websocket)
-    axis = None
-    direction = None
     dx = new.get("x") - baseline.get("x")
     dz = new.get("z") - baseline.get("z")
     if dx != 0:
         axis = "x"
-        direction = 1 if dx > 0 else -1
+        direction = -1 if dx > 0 else 1
     elif dz != 0:
         axis = "z"
-        direction = 1 if dz > 0 else -1
+        direction = -1 if dz > 0 else 1
+    #return the turtle to its original position in its original orientation
     await turtle.turn_left()
     await turtle.turn_left()
     for i in range(5):
         await turtle.forward()
     await turtle.turn_left()
     await turtle.turn_left()
-    print("orientation results......", "\nBaseline: ", baseline, "\nNew: ", new, "\nDX: ", dx, "\nDZ: ", dz, "\nDirection: ", direction, "\nDetermined Axis: ", axis)
+    print("orientation results......",
+          "\nBaseline: ", baseline,
+          "\nNew: ", new,
+          "\nDX: ", dx,
+          "\nDZ: ", dz,
+          "\nDirection: ", direction,
+          "\nDetermined Axis: ", axis)
     return axis, direction
 
 async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
-    print(f"attempting to face {"forward" if distance > 0 else "backwards"} on {target_axis} axis. Currently facing {"forward" if facing_dir == 1 else "backwards"} on {facing_axis} axis.")
+    print(f"attempting to face {'forward' if distance > 0 else 'backwards'} on {target_axis} axis. "
+          f"Currently facing {'forward' if facing_dir == 1 else 'backwards'} on {facing_axis} axis.")
+
     if facing_axis == target_axis:
         if (distance > 0 and facing_dir == 1) or (distance < 0 and facing_dir == -1):
             print("correct axis, correct direction, no action needed.")
@@ -689,10 +699,14 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
             await turtle.turn_left()
             await turtle.turn_left()
     else:
-        if (facing_axis, facing_dir, target_axis, distance > 0) in [
-            ("x", 1, "z", True), ("z", -1, "x", True),
-            ("x", -1, "z", False), ("z", 1, "x", False)
-        ]:
+        turn_right_cases = [
+            ("x", 1, "z"),  # facing +x, want +z
+            ("z", -1, "x"),  # facing -z, want +x
+            ("x", -1, "z"),  # facing -x, want -z
+            ("z", 1, "x"),  # facing +z, want -x
+        ]
+
+        if (facing_axis, facing_dir, target_axis) in turn_right_cases:
             print("wrong axis, turn right")
             await turtle.turn_right()
         else:
