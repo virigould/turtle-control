@@ -516,10 +516,11 @@ async def go_mining(turtle, chunks):
     # each chunk = 738 fuel
     for chunk in range(chunks):
         # await mine_chunk(turtle)
-        response = await send_refuel(turtle.websocket, 1)
-        print(response)
+        # await send_refuel(turtle.websocket, 1)
+        inventory = await check_inventory(turtle.websocket)
+        print(inventory)
         '''
-        if (response["fuel"] < 4000) & response["slot"] == 0:
+        if (inventory["fuel"] < 4000) & inventory["slot 1"] == 0:
             await go_home(turtle,home)
             await unload(turtle, dumpsite)
             await reload(turtle, fuel_source)

@@ -317,20 +317,14 @@ function handle_message(message)
 			print(fueled)
 			print(mssg)
 			if not fueled then
-                print("before issue in not fueled")
 				local issue = { command_output = mssg, command_id = info["id"] }
-				print("before send in not fueled")
 				ws.send(textutils.serializeJSON(issue))
-				print("after send in not fueled")
 				do
 					return
 				end
 			else
-                print("before output in fueled")
-				local output = { command_output = turtle.getFuelLevel, command_id = info["id"] }
-				print("before send in fueled")
+				local output = { command_output = turtle.getFuelLevel(), command_id = info["id"] }
 				ws.send(textutils.serializeJSON(output))
-				print("after send in fueled")
 				do
 					return
 				end
@@ -339,20 +333,14 @@ function handle_message(message)
 			turtle.select(info["slot"])
 			local fueled, mssg = turtle.refuel()
 			if not fueled then
-                print("before issue in not fueled slot")
 				local issue = { command_output = mssg, command_id = info["id"] }
-				print("before send in not slot")
 				ws.send(textutils.serializeJSON(issue))
-				print("after send in not slot")
 				do
 					return
 				end
 			else
-                print("before output in slot")
 				local output = { command_output = turtle.getFuelLevel(), command_id = info["id"] }
-				print("before send in slot")
 				ws.send(textutils.serializeJSON(output))
-				print("after send in slot")
 				do
 					return
 				end
