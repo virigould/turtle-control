@@ -519,7 +519,7 @@ async def go_mining(turtle, chunks):
         # await send_refuel(turtle.websocket, 1)
         await turtle.dig()
         response = await turtle.forward()
-        fuel_level = response[1]
+        fuel_level = response["command_output"]
         print(fuel_level)
         inventory = await check_inventory(turtle.websocket)
         print(inventory)
