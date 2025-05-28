@@ -21,8 +21,7 @@ function check_inventory()
 	local inventory = {}
 	for i = 1, 9, 1 do
 		local item = turtle.getItemDetail(i)
-		if item ~= nil then
-		    inventory[item.name] = item.count
+		inventory[i] = item
 	end
 	return inventory
 end
