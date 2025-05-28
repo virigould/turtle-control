@@ -516,24 +516,21 @@ async def go_mining(turtle, chunks):
     # each chunk = 738 fuel
     for chunk in range(chunks):
         # await mine_chunk(turtle)
-        # await send_refuel(turtle.websocket, 1)
+        last_position = await send_gps(turtle.websocket)
+        await send_refuel(turtle.websocket, 1)
         await turtle.dig()
         response = await turtle.forward()
         fuel_level = response["command_output"]
-        print(fuel_level)
-        inventory = await check_inventory(turtle.websocket)
-        print(inventory)
+        response = await check_inventory(turtle.websocket)
+        inventory = response["minecraft:coal_block"]
+        if (fuel_level < 1000) & inventory < 25:
+            await go_to(home, turtle)
+            # await unload(turtle, dumpsite)
+            # await reload(turtle, fuel_source)
+            await go_to(last_position, turtle)
 
 
-        '''
-        if (inventory["fuel"] < 4000) & inventory["slot 1"] == 0:
-            await go_home(turtle,home)
-            await unload(turtle, dumpsite)
-            await reload(turtle, fuel_source)
-            await come_back(turtle, current)
-        '''
-
-    # await go_home(turtle, home)
+    # await go_to(home, turtle)
 
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
@@ -646,16 +643,16 @@ async def fly(turtle, axis, direction, home):
         for i in range(abs(dz)):
             await turtle.forward()
 
-async def go_home(turtle, home):
+async def go_to(location, turtle):
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 170)
     print(f"ascending {y_distance} blocks")
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
-    print("Attempting to go home:", "\nCurrent Axis: ", axis, "\nFacing(+/-): ", direction)
-    await fly(turtle, axis, direction, home)
+    print("Attempting to go somewhere:", "\nCurrent Axis: ", axis, "\nFacing(+/-): ", direction)
+    await fly(turtle, axis, direction, location)
     current = await send_gps(turtle.websocket)
-    y_distance = y_from(current, home.get("y"))
+    y_distance = y_from(current, location.get("y"))
     direction = 1 if y_distance > 0 else -1
     print(f"{'descending' if y_distance < 0 else 'ascending'} {abs(y_distance)} blocks")
     await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
