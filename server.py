@@ -523,7 +523,7 @@ async def go_mining(turtle, chunks):
         fuel_level = response["command_output"]
         response = await check_inventory(turtle.websocket)
         inventory = response["minecraft:coal_block"]
-        if (fuel_level < 1000) & inventory < 25:
+        if (fuel_level < 2000) & inventory < 25:
             await go_to(home, turtle)
             # await unload(turtle, dumpsite)
             # await reload(turtle, fuel_source)
