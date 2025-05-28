@@ -503,7 +503,7 @@ async def mine_chunk(turtle):
     await turtle.down()
     await turtle.turn_left()
     await turtle.turn_left()
-    for i in range(17):
+    for i in range(16):
         await turtle.forward()
 
 async def go_mining(turtle, chunks):
@@ -517,8 +517,13 @@ async def go_mining(turtle, chunks):
     for chunk in range(chunks):
         # await mine_chunk(turtle)
         # await send_refuel(turtle.websocket, 1)
+        await turtle.dig()
+        fuel_level = await turtle.forward()[1]
+        print(fuel_level)
         inventory = await check_inventory(turtle.websocket)
         print(inventory)
+
+
         '''
         if (inventory["fuel"] < 4000) & inventory["slot 1"] == 0:
             await go_home(turtle,home)
