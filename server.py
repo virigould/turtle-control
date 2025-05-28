@@ -515,7 +515,7 @@ async def go_mining(turtle, chunks):
 
     # each chunk = 738 fuel
     for chunk in range(chunks):
-        await mine_chunk(turtle)
+        # await mine_chunk(turtle)
         response = await send_refuel(turtle.websocket, 1)
         print(response)
         current = await send_gps(turtle.websocket)
