@@ -521,9 +521,13 @@ async def go_mining(turtle, chunks):
         await turtle.dig()
         response = await turtle.forward()
         fuel_level = response["command_output"]
-        response = await check_inventory(turtle.websocket)
-        inventory = response["minecraft:coal_block"]
-        if (fuel_level < 2000) & inventory < 25:
+        inventory = await check_inventory(turtle.websocket)
+        fuel = 0
+        fuel_items = ["biofuel", "coal", "wood", "lava", "blaze_rod"]
+        for item_name in inventory:
+            if any(fuel_type in item_name for fuel_type in fuel_items):
+                fuel += inventory[item_name]
+        if (fuel_level < 2000) & fuel < 25:
             await go_to(home, turtle)
             # await unload(turtle, dumpsite)
             # await reload(turtle, fuel_source)
