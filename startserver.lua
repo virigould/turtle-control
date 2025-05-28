@@ -358,7 +358,7 @@ function handle_message(message)
 			else
 				ws.send(textutils.serializeJSON({
 					bool = move_attempt,
-					command_output = turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(),
+					command_output = turtle.getFuelLevel(),
 					command_id = info["id"],
 				}))
 				do
@@ -377,7 +377,7 @@ function handle_message(message)
 			else
 				ws.send(textutils.serializeJSON({
 					bool = move_attempt,
-					command_output = turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(),
+					command_output = turtle.getFuelLevel(),
 					command_id = info["id"],
 				}))
 				do
@@ -395,7 +395,7 @@ function handle_message(message)
 			else
 				ws.send(textutils.serializeJSON({
 					bool = move_attempt,
-					command_output = turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(),
+					command_output = turtle.getFuelLevel(),
 					command_id = info["id"],
 				}))
 				do
@@ -413,7 +413,7 @@ function handle_message(message)
 			else
 				ws.send(textutils.serializeJSON({
 					bool = move_attempt,
-					command_output = turtle.getFuelLevel() .. "/" .. turtle.getFuelLimit(),
+					command_output = turtle.getFuelLevel(),
 					command_id = info["id"],
 				}))
 				do
