@@ -466,8 +466,8 @@ async def go_mining(turtle):
         await turtle.forward()
 
     # move the turtle to the desired depth
-    y_distance = y_from(home, -48)
-    y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
+    # y_distance = y_from(home, -48)
+    # y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
     
     for i in range(2):
 
