@@ -328,17 +328,12 @@ async def mine(blocks, turtle):
         else:
             print(f"Unknown instruction: {instruction}")
 
-async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
+async def tunnel(turtle, axis, pattern, n):
     """
     :param turtle: the turtle
     :param axis: axis the turtle is meant to travel on
-    :param direction: either +1 or -1
     :param pattern: walls, top or bottom
     :param n: how far to mine
-    :param x: current x coordinate
-    :param y: current y coordinate
-    :param z: current z coordinate
-    :return: the relevant coordinate (x, y, or z)
     """
 
     pattern_map = {
@@ -350,17 +345,13 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
     }
 
     for i in range(n):
-        if axis in ("x","z"):
+        if axis in ("x", "z"):
             action = pattern_map.get(pattern)
             blocks = await action()
             if blocks:
                 await mine(blocks, turtle)
             await turtle.dig()
             await turtle.forward()
-            if axis == "x":
-                x += direction
-            elif axis == "z":
-                z += direction
         else:
             action = pattern_map.get(pattern)
             await action()
@@ -368,25 +359,12 @@ async def tunnel(turtle, axis, direction, pattern, n, x, y, z):
                 await turtle.down()
             elif pattern == "up":
                 await turtle.up()
-            y += direction
 
-    if axis == "x":
-        return x
-    elif axis == "y":
-        return y
-    elif axis == "z":
-        return z
-
-async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
+async def tunnel_transition(turtle, transition_type, reflection):
     """
-
     :param turtle: the turtle
-    :param x: current x coordinate
-    :param y: current y coordinate
-    :param z: current z coordinate
     :param transition_type: from which tunnel to which tunnel
     :param reflection: which way does the turtle need to turn
-    :return: x, y, z
     """
     reflection_map = {
         "right": turtle.turn_right,
@@ -399,8 +377,6 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         await turtle.up()
         await action()
         await action()
-        y += 1
-        return x, y, z
 
     elif transition_type == "bottom trough to top trough":
         action = reflection_map.get(reflection)
@@ -413,12 +389,6 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         await turtle.dig_down()
         await turtle.down()
         await action()
-        y -= 2
-        if reflection == "left":
-            x += 2
-        elif reflection == "right":
-            x -= 2
-        return x, y, z
 
     elif transition_type == "top trough to bottom trough":
         action = reflection_map.get(reflection)
@@ -430,12 +400,6 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
         await turtle.dig()
         await turtle.forward()
         await action()
-        y += 1
-        if reflection == "left":
-            x += 2
-        elif reflection == "right":
-            x -= 2
-        return x, y, z
 
     elif transition_type == "interior to interior":
         action = reflection_map.get(reflection)
@@ -445,177 +409,116 @@ async def tunnel_transition(turtle, x, y, z, transition_type, reflection):
             await turtle.dig()
             await turtle.forward()
         await action()
-        y -= 1
-        if reflection == "right":
-            x += 4
-        elif reflection == "left":
-            x -= 4
-        return x, y, z
 
-async def go_mining(turtle):
-    # store a copy of the home coordinates, and initiate distance variables
-    turtle.location = await send_gps(turtle.websocket)
-    home = turtle.location.copy()
-    print(home)
-    print(turtle.location)
-    x = 0
-    y = 0
-    z = 0
+async def mine_chunk(turtle):
 
-    for i in range(5):
-        await turtle.forward()
+    ##################
+    ### FIRST PASS ###
+    ##################
 
-    # move the turtle to the desired depth
-    # y_distance = y_from(home, -48)
-    # y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
-    
     for i in range(2):
-
-        #bottom blue tunnel
-        print(37595648465)
-        z = await tunnel(turtle, "z", 1, "walls", 16, x, y, z)
-    
-        #bottom blue to green
-        print(283964293856)
-        x, y, z = await tunnel_transition(turtle, x, y, z,"top trough to bottom trough", "left")
-    
-        #green tunnel
-        print(719879324789432)
-        z = await tunnel(turtle, "z", -1, "bottom", 16, x, y, z)
-    
-        #green to purple
-        print(536739475632)
-        x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
-    
-        #purple tunnel
-        print(638202187346)
-        z = await tunnel(turtle, "z", 1, "top", 16, x, y, z)
-    
-        #purple to bottom blue
-        print(526109176373)
-        x, y, z = await tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "left")
-    
+        # bottom blue tunnel
+        await tunnel(turtle, "z", "walls", 16)
+        # bottom blue to green
+        await tunnel_transition(turtle, "top trough to bottom trough", "left")
+        # green tunnel
+        await tunnel(turtle, "z", "bottom", 16)
+        # green to purple
+        await tunnel_transition(turtle, "interior", "left")
+        # purple tunnel
+        await tunnel(turtle, "z", "top", 16)
+        # purple to bottom blue
+        await tunnel_transition(turtle, "bottom trough to top trough", "left")
         # bottom blue tunnel backwards
-        print(6230232386483)
-        z = await tunnel(turtle, "z", -1, "walls", 16, x, y, z)
-    
+        await tunnel(turtle, "z", "walls", 16)
         # bottom blue to green backside
-        print(7437389267382)
-        x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
-    
-        #green tunnel backwards
-        print(7347823764872)
-        z = await tunnel(turtle, "z", 1, "bottom", 16, x, y, z)
-    
-        #green to purple
-        print(768908231144323)
-        x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
-    
-        #purple tunnel backwards
-        print(63575923625)
-        z = await tunnel(turtle, "z", -1, "top", 16, x, y, z)
+        await tunnel_transition(turtle, "top trough to bottom trough", "right")
+        # green tunnel backwards
+        await tunnel(turtle, "z", "bottom", 16)
+        # green to purple
+        await tunnel_transition(turtle, "interior", "left")
+        # purple tunnel backwards
+        await tunnel(turtle, "z", "top", 16)
         if i == 0:
             # purple backside to bottom blue
-            print(6445799976443223)
-            x, y, z = await tunnel_transition(turtle, x, y, z, "bottom trough to top trough", "right")
+            await tunnel_transition(turtle, "bottom trough to top trough", "right")
 
     ##################
     ### MAIN CHUNK ###
     ##################
 
     for i in range(3):
-
-        #purple to yellow
-        print(6564564843893)
-        x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
-
-        #yellow and blue tunnels
+        # purple to yellow
+        await tunnel_transition(turtle, "top trough to bottom trough", "left")
+        # yellow and blue tunnels
         for j in range(4):
-
-            #yellow tunnel
-            print(555738367864)
-            z = await tunnel(turtle, "z", 1, "bottom", 16, x, y, z)
-
-            #yellow to blue
-            print(66781117785483)
-            x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
-
-            #blue tunnel
-            print(66567784839)
-            z = await tunnel(turtle, "z", -1, "top", 16, x, y, z)
-
+            # yellow tunnel
+            await tunnel(turtle, "z", "bottom", 16)
+            # yellow to blue
+            await tunnel_transition(turtle, "interior", "left")
+            # blue tunnel
+            await tunnel(turtle, "z", "top", 16)
             if j < 3:
-                #blue to yellow
-                print(9987637433784)
-                x, y, z = await tunnel_transition(turtle, x, y, z, "interior to interior", "left")
-
-        #blue to green
-        print(9865432345678)
-        x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "right")
-
-        #green and purple tunnels
+                # blue to yellow
+                await tunnel_transition(turtle, "interior to interior", "left")
+        # blue to green
+        await tunnel_transition(turtle, "top trough to bottom trough", "right")
+        # green and purple tunnels
         for j in range(4):
-
-            #green tunnel
-            print(675248962345089778)
-            z = await tunnel(turtle, "z", 1, "bottom", 16, x, y, z)
-
-            #green to purple
-            print(6789495876563743)
-            x, y, z = await tunnel_transition(turtle, x, y, z, "interior", "left")
-
-            #purple tunnel
-            print(785348752345467)
-            z = await tunnel(turtle, "z", -1, "top", 16, x, y, z)
-
-
+            # green tunnel
+            await tunnel(turtle, "z", "bottom", 16)
+            # green to purple
+            await tunnel_transition(turtle, "interior", "left")
+            # purple tunnel
+            await tunnel(turtle, "z", "top", 16)
             if j < 3:
-                #purple to green
-                print(678937467689832)
-                x,y,z = await tunnel_transition(turtle, x, y, z, "interior to interior", "right")
+                # purple to green
+                await tunnel_transition(turtle, "interior to interior", "right")
+    # green to yellow
+    await tunnel_transition(turtle, "top trough to bottom trough", "left")
 
-    #green to yellow
-    print(2345678900975)
-    x, y, z = await tunnel_transition(turtle, x, y, z, "top trough to bottom trough", "left")
+    #################
+    ### LAST PASS ###
+    #################
 
-    #top yellow tunnels
+    # top yellow tunnels
     for i in range(4):
-        if i %2 == 0:
-
-            #tunnel
-            print(23458900007544)
-            z = await tunnel(turtle,"z", 1, "walls", 16, x, y, z)
-
-            #to next tunnel
-            print(754789097453)
-            x, y, z = await tunnel_transition(turtle, x, y, z, "interior to interior", "right")
-
+        if i % 2 == 0:
+            # tunnel
+            await tunnel(turtle, "z", "walls", 16)
+            # to next tunnel
+            await tunnel_transition(turtle, "interior to interior", "right")
         else:
-            #tunnel opposite direction
-            print(4356789767432)
-            z = await tunnel(turtle, "z", 1, "walls", 16, x, y, z)
-
-            #to next tunnel but only on the first pass
+            # tunnel opposite direction
+            await tunnel(turtle, "z", "walls", 16)
+            # to next tunnel but only on the first pass
             if i < 3:
-                print(34578999945673)
-                x,y,z = await tunnel_transition(turtle, x, y, z, "interior to interior", "left")
+                await tunnel_transition(turtle, "interior to interior", "left")
 
-    # return to start position
-    print(678900034742387564)
-    y = await tunnel(turtle, "y", -1, "down", 15, x, y, z)
+    #################
+    ### NEW CHUNK ###
+    #################
+
+    await tunnel(turtle, "y", "down", 15)
     await turtle.down()
-    y -= 1
-
-    #turn around
     await turtle.turn_left()
     await turtle.turn_left()
-
-    #move to next chunk
     for i in range(17):
         await turtle.forward()
-        z += 1
 
-    await go_home(turtle, home, x, y, z)
+async def go_mining(turtle, chunks):
+    turtle.location = await send_gps(turtle.websocket)
+    home = turtle.location.copy()
+
+    # move the turtle to the desired depth
+    # y_distance = y_from(home, -48)
+    # await tunnel(turtle, "y", "down", y_distance)
+
+    for chunk in range(chunks):
+        await mine_chunk(turtle)
+        # await send_refuel(turtle.websocket, 1)
+
+    # await go_home(turtle, home)
 
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
@@ -728,11 +631,11 @@ async def fly(turtle, axis, direction, home):
         for i in range(abs(dz)):
             await turtle.forward()
 
-async def go_home(turtle, home, x, y, z):
+async def go_home(turtle, home):
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 170)
     print(f"ascending {y_distance} blocks")
-    await tunnel(turtle, "y", 1, "up", y_distance, x, y, z)
+    await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
     print("Attempting to go home:", "\nCurrent Axis: ", axis, "\nFacing(+/-): ", direction)
     await fly(turtle, axis, direction, home)
@@ -740,11 +643,11 @@ async def go_home(turtle, home, x, y, z):
     y_distance = y_from(current, home.get("y"))
     direction = 1 if y_distance > 0 else -1
     print(f"{'descending' if y_distance < 0 else 'ascending'} {abs(y_distance)} blocks")
-    await tunnel(turtle, "y", direction, "down" if direction < 0 else "up", abs(y_distance), x, y, z)
+    await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
 
 async def handle_message(websocket):
     async for message in websocket:
-        # print("Message: " + message)
+        print("Message: " + message)
         mssg = json.loads(message)
         if "computer_name" in mssg:
             client_id = mssg["computer_name"]
@@ -756,7 +659,7 @@ async def handle_message(websocket):
                 if mssg["job"] == "miner":
                     # this has to be in the background and can not be awaited as it will block all the threads
                     turtle = Turtle(mssg["computer_name"], websocket)
-                    asyncio.get_event_loop().create_task(go_mining(turtle))
+                    asyncio.get_event_loop().create_task(go_mining(turtle,1))
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
                 command = current_commands.pop(mssg["command_id"])
