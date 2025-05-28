@@ -507,18 +507,33 @@ async def mine_chunk(turtle):
         await turtle.forward()
 
 async def go_mining(turtle, chunks):
-    turtle.location = await send_gps(turtle.websocket)
-    home = turtle.location.copy()
+    home = await send_gps(turtle.websocket)
+
+    for i in range(5):
+        await turtle.forward()
+    await turtle.turn_left()
+    for i in range(5):
+        await turtle.forward()
+    for i in range(10):
+        turtle.up()
+
 
     # move the turtle to the desired depth
     # y_distance = y_from(home, -48)
     # await tunnel(turtle, "y", "down", y_distance)
 
-    for chunk in range(chunks):
-        await mine_chunk(turtle)
-        # await send_refuel(turtle.websocket, 1)
+    # each chunk = 738 fuel
+    # for chunk in range(chunks):
+    #    await mine_chunk(turtle)
+    #    response = await send_refuel(turtle.websocket, 1)
+    #    current = await send_gps(turtle.websocket)
+    #    if (response["fuel"] < 4000) & response["slot"] == 0:
+    #        await go_home(turtle,home)
+    #        await unload(turtle, dumpsite)
+    #        await reload(turtle, fuel_source)
+    #        await come_back(turtle, current)
 
-    # await go_home(turtle, home)
+    await go_home(turtle, home)
 
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
