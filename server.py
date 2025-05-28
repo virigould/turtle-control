@@ -518,8 +518,6 @@ async def go_mining(turtle, chunks):
         # await mine_chunk(turtle)
         response = await send_refuel(turtle.websocket, 1)
         print(response)
-        current = await send_gps(turtle.websocket)
-        print(current)
         '''
         if (response["fuel"] < 4000) & response["slot"] == 0:
             await go_home(turtle,home)
