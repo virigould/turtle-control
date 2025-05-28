@@ -663,24 +663,31 @@ async def go_mining(turtle):
 #         except websockets.ConnectionClosed:
 #             break
 '''
+# Cardinal directions in clockwise order: North (z-), East (x+), South (z+), West (x-)
+CARDINALS = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
+
+def get_direction_index(axis, direction):
+    return CARDINALS.index((axis, direction))
+
+def get_turn_diff(current_axis, current_dir, target_axis, target_dir):
+    current = get_direction_index(current_axis, current_dir)
+    target = get_direction_index(target_axis, target_dir)
+    return (target - current) % 4
+
 async def orient(turtle):
     print("beginning orientation")
-    #test to see what axis changes in forward motion, and whether the change is positive or negative.
-    axis = None
-    direction = None
     baseline = await send_gps(turtle.websocket)
     for i in range(5):
         await turtle.forward()
     new = await send_gps(turtle.websocket)
     dx = new.get("x") - baseline.get("x")
     dz = new.get("z") - baseline.get("z")
-    if dx != 0:
+    if abs(dx) > abs(dz):
         axis = "x"
         direction = 1 if dx > 0 else -1
-    elif dz != 0:
+    else:
         axis = "z"
         direction = 1 if dz > 0 else -1
-    #return the turtle to its original position in its original orientation
     await turtle.turn_left()
     await turtle.turn_left()
     for i in range(5):
@@ -701,50 +708,33 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
           f"Currently facing {'forward' if facing_dir == 1 else 'backwards'} on {facing_axis} axis.")
 
     target_dir = 1 if distance > 0 else -1
+    diff = get_turn_diff(facing_axis, facing_dir, target_axis, target_dir)
 
-    if facing_axis == target_axis:
-        if facing_dir == target_dir:
-            print("correct axis, correct direction, no action needed.")
-            return
-        else:
-            print("correct axis, wrong direction, turning around")
-            await turtle.turn_left()
-            await turtle.turn_left()
-            return
-
-    # Define cardinal directions in clockwise order
-    # north = z-
-    # east = x+
-    # south = z+
-    # west = x-
-    cardinals = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
-
-    current_index = cardinals.index((facing_axis, facing_dir))
-    target_index = cardinals.index((target_axis, target_dir))
-    diff = (target_index - current_index) % 4
-
-    if diff == 1:
-        print("wrong axis, turn right")
+    if diff == 0:
+        print("correct axis, correct direction, no action needed.")
+    elif diff == 1:
+        print("turning right")
         await turtle.turn_right()
     elif diff == 3:
-        print("wrong axis, turn left")
+        print("turning left")
         await turtle.turn_left()
     elif diff == 2:
-        print("wrong axis, turning around")
+        print("turning around")
         await turtle.turn_left()
         await turtle.turn_left()
 
 async def fly(turtle, axis, direction, home):
-    (print("starting fly routine......"))
+    print("starting fly routine......")
     current = await send_gps(turtle.websocket)
     dx = home.get("x") - current.get("x")
-    print("x blocks from current to home: " ,dx)
+    print("x blocks from current to home: ", dx)
     if dx != 0:
         print("face home on x axis")
         await face_axis(turtle, axis, direction, "x", dx)
-        print( f"moving towards home {abs(dx)} blocks ")
+        print(f"moving towards home {abs(dx)} blocks ")
         for i in range(abs(dx)):
             await turtle.forward()
+        axis, direction = "x", 1 if dx > 0 else -1
     current = await send_gps(turtle.websocket)
     dz = home.get("z") - current.get("z")
     print("z blocks from current to home: ", dz)
@@ -766,7 +756,7 @@ async def go_home(turtle, home, x, y, z):
     current = await send_gps(turtle.websocket)
     y_distance = y_from(current, home.get("y"))
     direction = 1 if y_distance > 0 else -1
-    print(f"{"descending" if y_distance < 0 else "ascending"} {abs(y_distance)} blocks")
+    print(f"{'descending' if y_distance < 0 else 'ascending'} {abs(y_distance)} blocks")
     await tunnel(turtle, "y", direction, "down" if direction < 0 else "up", abs(y_distance), x, y, z)
 
 async def handle_message(websocket):
