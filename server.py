@@ -462,31 +462,10 @@ async def go_mining(turtle):
     y = 0
     z = 0
 
-    print("currently facing z+ at -196")
-    for i in range(10):
-        print("z +10 blocks to -186")
-        await turtle.forward()
-    for i in range(10):
-        print("y = 164")
-        await turtle.up()
-    await turtle.turn_right()
-    print("turned to x- at -128")
     for i in range(5):
-        print("x -5 to -133")
-        await turtle.forward()
-    await turtle.turn_left()
-    print("facing z+")
-    for i in range(3):
-        print("z +3 blocks to -183")
         await turtle.forward()
 
-    print("coordinates: x,-133 y,189 z,-183")
-    print("correct actions: -3,x -13,z -16,y ")
-
-    await go_home(turtle, home, x, y, z)
-
-'''
-    move the turtle to the desired depth
+    # move the turtle to the desired depth
     y_distance = y_from(home, -48)
     y = await tunnel(turtle, "y", -1, "down", y_distance, x, y, z)
     
@@ -636,6 +615,8 @@ async def go_mining(turtle):
         await turtle.forward()
         z += 1
 
+    await go_home(turtle, home, x, y, z)
+
     # # refueled = await send_refuel(websocket, 1)
     # # print(f"Refueled: {refueled}")
     # print("in go mining")
@@ -662,8 +643,10 @@ async def go_mining(turtle):
 #             await asyncio.sleep(interval)
 #         except websockets.ConnectionClosed:
 #             break
-'''
-# Cardinal directions in clockwise order: North (z-), East (x+), South (z+), West (x-)
+
+
+# cardinal directions in clockwise order:
+# North (z-), East (x+), South (z+), West (x-)
 CARDINALS = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
 
 def get_direction_index(axis, direction):
