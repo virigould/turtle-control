@@ -422,7 +422,30 @@ function handle_message(message)
 		end
 	elseif info["type"] == "test" then
 		print("It got the test command")
+	elseif info["type"] == "select_slot" then
+		local selected = turtle.select(info["slot"])
+		local output = { command_id = info["id"], command_output = string.format("Slot #%d", info["slot"]) }
+		ws.send(textutils.serializeJSON(output))
+		do
+			return
+		end
+	elseif info["type"] == "drop" then
+		local dropped, err = turtle.drop()
+		if not dropped then
+			local output = { command_id = info["id"], command_output = "Could not drop empty stack" }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		else
+			local output = { command_id = info["id"], command_output = "Dropped full stack" }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		end
 	elseif info["type"] == "get_inv" then
+		-- This gets the inventory for the chest in front of the turtle
 		local chest = peripheral.wrap("front")
 		if chest == nil then
 			local output = { command_id = info["id"], command_output = "Could not obtain chest handle" }

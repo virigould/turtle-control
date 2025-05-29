@@ -149,6 +149,22 @@ async def send_dump(websocket):
     return response
 
 
+async def send_drop(websocket):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, "type": "drop"}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
+
+async def send_select_slot(websocket, slot):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, "type": "select_slot", "slot": slot}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
+
 def check_do_not_break(name):
     do_not_break_list = [
         # to do
