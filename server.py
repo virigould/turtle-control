@@ -8,6 +8,9 @@ import uuid
 current_commands = {}
 current_id = 0
 clients = {}
+# cardinal directions in clockwise order:
+# North (z-), East (x+), South (z+), West (x-)
+CARDINALS = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
 
 
 async def send_command(websocket, command):
@@ -19,14 +22,12 @@ async def send_command(websocket, command):
     response = await current_commands[id]
     return response
 
-
 async def send_gps(websocket):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "gps"}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     return response
-
 
 async def send_inspect(websocket, direction):
     # print("in send inspect")
@@ -41,7 +42,6 @@ async def send_inspect(websocket, direction):
     else:
         return None
 
-
 async def send_dig(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "dig", "direction": direction}))
@@ -49,14 +49,12 @@ async def send_dig(websocket, direction):
     response = await current_commands[id]
     return response
 
-
 async def check_inventory(websocket):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "inventory"}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     return response
-
 
 async def send_place(websocket, direction):
     id = str(uuid.uuid4())
@@ -67,14 +65,12 @@ async def send_place(websocket, direction):
     response = await current_commands[id]
     return response
 
-
 async def send_move(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "move", "direction": direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     return response
-
 
 async def send_suck(websocket, direction, count=None):
     if count is not None:
@@ -96,7 +92,6 @@ async def send_suck(websocket, direction, count=None):
         response = await current_commands[id]
         return response
 
-
 async def send_turn(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "turn", "direction": direction}))
@@ -105,7 +100,6 @@ async def send_turn(websocket, direction):
     # print("after send turn response await")
     # print(response)
     return response
-
 
 async def send_refuel(websocket, slot=None):
     if slot is not None:
@@ -121,11 +115,25 @@ async def send_refuel(websocket, slot=None):
         response = await current_commands[id]
         return response
 
-'''    
 async def send_pump(websocket, slot):
-    id = str(uuid.uuid4())
-    await websocket.send(json.dumps({"id": id, ""}))
-'''
+    if slot["item_name"] is None:
+        id = str(uuid.uuid4())
+        await websocket.send(json.dumps({"id": id, "type": "pump"}))
+        current_commands[id] = asyncio.get_event_loop().create_future()
+        response = await current_commands[id]
+        return response
+    else:
+        print()
+
+
+async def send_dump(websocket, slots):
+    for slot in slots:
+        if slot != 1 and slot["item_name"] is not None:
+            id = str(uuid.uuid4())
+            await websocket.send(json.dumps({"id": id, "type": "dump"}))
+            current_commands[id] = asyncio.get_event_loop().create_future()
+            response = await current_commands[id]
+            return response
 
 def check_do_not_break(name):
     do_not_break_list = [
@@ -136,7 +144,6 @@ def check_do_not_break(name):
     if name in do_not_break_list:
         return True
     return False
-
 
 class Turtle:
     def __init__(self, name, websocket):
@@ -248,11 +255,7 @@ class Turtle:
         await self.turn_left()
         return results
 
-    """
-Effectively a test method to try working on if the commands work and return what we need
 
-Eventually we will make a async queue that gets propigated with commands to send to the turtle based off of user input we provide it from a turtle admin control
-"""
 def y_from(here, y):
     diff = y - here["y"]
     return diff
@@ -262,6 +265,7 @@ def x_from(here, x):
 def z_from(here, z):
     diff = z - here["z"]
     return diff
+
 
 def is_valuable(block):
     if block is None:
@@ -418,6 +422,11 @@ async def tunnel_transition(turtle, transition_type, reflection):
         await action()
 
 async def mine_chunk(turtle):
+    """
+    the chunk algorithm that the turtles will mine in
+    :param turtle:
+    :return None:
+    """
 
     ##################
     ### FIRST PASS ###
@@ -513,10 +522,6 @@ async def mine_chunk(turtle):
     for i in range(16):
         await turtle.forward()
 
-# cardinal directions in clockwise order:
-# North (z-), East (x+), South (z+), West (x-)
-CARDINALS = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
-
 def get_direction_index(axis, direction):
     return CARDINALS.index((axis, direction))
 
@@ -526,9 +531,13 @@ def get_turn_diff(current_axis, current_dir, target_axis, target_dir):
     return (target - current) % 4
 
 async def orient(turtle):
-    print("beginning orientation")
+    """
+    determines which axis the turtle is currently facing, and in which direction (+/-).
+    :param turtle:
+    :return axis, direction:
+    """
     baseline = await send_gps(turtle.websocket)
-    for i in range(5):
+    for i in range(2):
         await turtle.forward()
     new = await send_gps(turtle.websocket)
     dx = new.get("x") - baseline.get("x")
@@ -541,91 +550,93 @@ async def orient(turtle):
         direction = 1 if dz > 0 else -1
     await turtle.turn_left()
     await turtle.turn_left()
-    for i in range(5):
+    for i in range(2):
         await turtle.forward()
     await turtle.turn_left()
     await turtle.turn_left()
-    print("orientation results......",
-          "\nBaseline: ", baseline,
-          "\nNew: ", new,
-          "\nDX: ", dx,
-          "\nDZ: ", dz,
-          "\nDirection: ", direction,
-          "\nDetermined Axis: ", axis)
     return axis, direction
 
 async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
-    print(f"attempting to face {'forward' if distance > 0 else 'backwards'} on {target_axis} axis. "
-          f"Currently facing {'forward' if facing_dir == 1 else 'backwards'} on {facing_axis} axis.")
-
+    """
+    points the turtle in the cardinal direction it needs to be facing
+    :param turtle:
+    :param facing_axis: axis the turtle is currently on (x/z)
+    :param facing_dir: direction the turtle is currently facing (+/-)
+    :param target_axis: the axis the turtle needs to be on (x/z)
+    :param distance: direction the turtle needs to be facing (+/-)
+    :return None:
+    """
     target_dir = 1 if distance > 0 else -1
     diff = get_turn_diff(facing_axis, facing_dir, target_axis, target_dir)
 
     if diff == 0:
-        print("correct axis, correct direction, no action needed.")
+        return
     elif diff == 1:
-        print("turning right")
         await turtle.turn_right()
+        return
     elif diff == 3:
-        print("turning left")
         await turtle.turn_left()
+        return
     elif diff == 2:
-        print("turning around")
         await turtle.turn_left()
         await turtle.turn_left()
+        return
 
-async def fly(turtle, axis, direction, home):
-    print("starting fly routine......")
+async def cruise(turtle, axis, direction, destination):
+    """
+    sends the turtle toward its destination on the x and z axis
+    :param turtle:
+    :param axis: the axis the turtle is currently on (x/z)
+    :param direction: the direction the turtle is currently facing (+/-)
+    :param destination: where the turtle needs to be
+    :return:
+    """
     current = await send_gps(turtle.websocket)
-    dx = home.get("x") - current.get("x")
-    print("x blocks from current to home: ", dx)
+    dx = destination.get("x") - current.get("x")
     if dx != 0:
-        print("face home on x axis")
         await face_axis(turtle, axis, direction, "x", dx)
-        print(f"moving towards home {abs(dx)} blocks ")
         for i in range(abs(dx)):
             await turtle.forward()
         axis, direction = "x", 1 if dx > 0 else -1
     current = await send_gps(turtle.websocket)
-    dz = home.get("z") - current.get("z")
-    print("z blocks from current to home: ", dz)
+    dz = destination.get("z") - current.get("z")
     if dz != 0:
-        print("face home on z axis")
         await face_axis(turtle, axis, direction, "z", dz)
-        print(f"moving towards home {abs(dz)} blocks")
         for i in range(abs(dz)):
             await turtle.forward()
 
 async def go_to(location, turtle):
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 170)
-    print(f"ascending {y_distance} blocks")
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
-    print("Attempting to go somewhere:", "\nCurrent Axis: ", axis, "\nFacing(+/-): ", direction)
-    await fly(turtle, axis, direction, location)
+    await cruise(turtle, axis, direction, location)
     current = await send_gps(turtle.websocket)
     y_distance = y_from(current, location.get("y"))
     direction = 1 if y_distance > 0 else -1
-    print(f"{'descending' if y_distance < 0 else 'ascending'} {abs(y_distance)} blocks")
     await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
 
-async def pump_n_dump(turtle, chest, placement):
-    if placement == "right":
-        await turtle.turn_left()
-        await turtle.forward()
-        await turtle.turn_right()
-    for i in range(10):
-        message = await turtle.forward()
-        if message["command_output"] == "Movement obstructed":
-            break
 
+async def pump_n_dump(turtle, chest, inventory):
+    axis, direction = await orient(turtle)
+    await cruise(turtle, axis, direction, chest)
+    await send_dump(turtle.websocket, inventory)
+    await turtle.turn_right()
+    await turtle.forward()
+    await turtle.turn_left()
+    await send_pump(turtle.websocket, inventory)
 
-
-async def go_mining(turtle, home, chest, placement, chunks, gotoX, gotoZ):
-    # move the turtle to the desired depth
-    # y_distance = y_from(home, -48)
-    # await tunnel(turtle, "y", "down", y_distance)
+async def go_mining(turtle, chunks, home, chest, the_mines):
+    """
+    :param turtle:
+    :param chunks:
+    :param home:
+    :param chest:
+    :param the_mines:
+    :return:
+    """
+    #move the turtle to its mining location
+    await go_to(the_mines, turtle)
 
     # each chunk = 738 fuel
     for chunk in range(chunks):
@@ -642,40 +653,13 @@ async def go_mining(turtle, home, chest, placement, chunks, gotoX, gotoZ):
         for item_name in inventory:
             if any(fuel_type in item_name for fuel_type in fuel_items):
                 fuel += inventory[item_name]
-        if (fuel_level < 2000) & fuel < 25:
+        if fuel_level < 2000 & fuel < 15:
             await go_to(home, turtle)
-            # await pump_n_dump(turtle, chest, placement)
+            await pump_n_dump(turtle, chest, inventory)
             await go_to(last_position, turtle)
 
-
-    # await go_to(home, turtle)
-
-    # # refueled = await send_refuel(websocket, 1)
-    # # print(f"Refueled: {refueled}")
-    # print("in go mining")
-    # await send_turn(websocket, "left")
-    # print("after turn left in go mining")
-    # # print(location)
-    # await send_inspect(websocket, "down")
-    # print("after the send inspect")
-    # for i in range(20):
-    #     print("iteration " + str(i))
-    #     print(await send_move(websocket, "up"))
-    # # print("after the up movement")
-    # # print(block)
-    # location = await send_gps(websocket)
-    # print(location)
-    # pass
-
-
-# async def keep_alive(websocket, interval=30):
-#     while True:
-#         try:
-#             await websocket.ping()
-#             #await websocket.recv()
-#             await asyncio.sleep(interval)
-#         except websockets.ConnectionClosed:
-#             break
+    #move the turtle back home to await orders
+    await go_to(home, turtle)
 
 async def handle_message(websocket):
     async for message in websocket:
@@ -691,13 +675,11 @@ async def handle_message(websocket):
                 if mssg["job"] == "miner":
                     # this has to be in the background and can not be awaited as it will block all the threads
                     turtle = Turtle(mssg["computer_name"], websocket)
+                    chunks = int(mssg["chunks"])  # int
                     home = mssg["home"]  # dict: { "x": ..., "y": ..., "z": ... }
                     chest = mssg["chest"]  # dict: { "x": ..., "y": ..., "z": ... }
-                    placement = mssg["placement"]  # string
-                    chunks = int(mssg["chunks"])  # int
-                    gotoX = int(mssg["gotoX"])
-                    gotoZ = int(mssg["gotoZ"])
-                    asyncio.get_event_loop().create_task(go_mining(turtle, home, chest, placement, chunks, gotoX, gotoZ))
+                    destination = mssg["destination"] # dict: { "x": ..., "y": ..., "z": ... }
+                    asyncio.get_event_loop().create_task(go_mining(turtle, chunks, home, chest, destination))
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
                 command = current_commands.pop(mssg["command_id"])

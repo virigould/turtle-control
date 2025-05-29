@@ -436,23 +436,26 @@ end
 function main()
     local length = #args
     if #arg < 10 then
-        print("Usage: script.lua homeX homeY homeZ chestX chestY chestZ placement chunks gotoX, gotoZ")
+        print("Usage: startserver.lua chunks homeX homeY homeZ chestX chestY chestZ minesX minesY minesZ")
         return
     end
+    local chunks = arg[1]
     local home = {
-        x = tonumber(arg[1]),
-        y = tonumber(arg[2]),
-        z = tonumber(arg[3])
+        x = tonumber(arg[2]),
+        y = tonumber(arg[3]),
+        z = tonumber(arg[4])
     }
     local chest = {
-        x = tonumber(arg[4]),
-        y = tonumber(arg[5]),
-        z = tonumber(arg[6])
+        x = tonumber(arg[5]),
+        y = tonumber(arg[6]),
+        z = tonumber(arg[7])
     }
-    local placement = arg[7]
-    local chunks = arg[8]
-    local gotoX = arg[9]
-    local gotoZ = arg[10]
+    local destination = {
+        x = tonumber(arg[8]),
+        y = tonumber(arg[9]),
+        z = tonumber(arg[10])
+
+        }
 
 	if file_exists("computer_info.txt") then
 		local file = io.open("computer_info.txt", "r")
@@ -466,12 +469,11 @@ function main()
 	local message = {
 	    computer_name = computer_info.name,
 	    job = computer_info.job,
+	    chunks = tonumber(chunks),
 	    home = home,
 	    chest = chest,
 	    placement = placement,
-	    chunks = tonumber(chunks),
-	    gotoX = tonumber(gotoX),
-	    gotoZ = tonumber(gotoZ)
+	    destination = destination
     }
 
     ws.send(textutils.serializeJSON(message))
