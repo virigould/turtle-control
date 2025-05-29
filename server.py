@@ -506,64 +506,6 @@ async def mine_chunk(turtle):
     for i in range(16):
         await turtle.forward()
 
-async def go_mining(turtle, chunks):
-    home = await send_gps(turtle.websocket)
-
-    # move the turtle to the desired depth
-    # y_distance = y_from(home, -48)
-    # await tunnel(turtle, "y", "down", y_distance)
-
-    # each chunk = 738 fuel
-    for chunk in range(chunks):
-        # await mine_chunk(turtle)
-        last_position = await send_gps(turtle.websocket)
-        await send_refuel(turtle.websocket, 1)
-        await turtle.dig()
-        response = await turtle.forward()
-        fuel_level = response["command_output"]
-        inventory = await check_inventory(turtle.websocket)
-        fuel = 0
-        fuel_items = ["biofuel", "coal", "wood", "lava", "blaze_rod"]
-        for item_name in inventory:
-            if any(fuel_type in item_name for fuel_type in fuel_items):
-                fuel += inventory[item_name]
-        if (fuel_level < 2000) & fuel < 25:
-            await go_to(home, turtle)
-            # await unload(turtle, dumpsite)
-            # await reload(turtle, fuel_source)
-            await go_to(last_position, turtle)
-
-
-    # await go_to(home, turtle)
-
-    # # refueled = await send_refuel(websocket, 1)
-    # # print(f"Refueled: {refueled}")
-    # print("in go mining")
-    # await send_turn(websocket, "left")
-    # print("after turn left in go mining")
-    # # print(location)
-    # await send_inspect(websocket, "down")
-    # print("after the send inspect")
-    # for i in range(20):
-    #     print("iteration " + str(i))
-    #     print(await send_move(websocket, "up"))
-    # # print("after the up movement")
-    # # print(block)
-    # location = await send_gps(websocket)
-    # print(location)
-    # pass
-
-
-# async def keep_alive(websocket, interval=30):
-#     while True:
-#         try:
-#             await websocket.ping()
-#             #await websocket.recv()
-#             await asyncio.sleep(interval)
-#         except websockets.ConnectionClosed:
-#             break
-
-
 # cardinal directions in clockwise order:
 # North (z-), East (x+), South (z+), West (x-)
 CARDINALS = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
@@ -660,6 +602,70 @@ async def go_to(location, turtle):
     direction = 1 if y_distance > 0 else -1
     print(f"{'descending' if y_distance < 0 else 'ascending'} {abs(y_distance)} blocks")
     await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
+
+"""async def unload(turtle, position):
+    if position == "left":
+        for i in range(10):
+            message = await turtle.forward()
+            if """
+
+async def go_mining(turtle, chunks):
+    home = await send_gps(turtle.websocket)
+
+    # move the turtle to the desired depth
+    # y_distance = y_from(home, -48)
+    # await tunnel(turtle, "y", "down", y_distance)
+
+    # each chunk = 738 fuel
+    for chunk in range(chunks):
+        await turtle.forward()
+        # await mine_chunk(turtle)
+        # last_position = await send_gps(turtle.websocket)
+        await send_refuel(turtle.websocket, 1)
+        # await turtle.dig()
+        # response = await turtle.forward()
+        # fuel_level = int(response["command_output"])
+        # inventory = await check_inventory(turtle.websocket)
+        # fuel = 0
+        # fuel_items = ["biofuel", "coal", "wood", "lava", "blaze_rod"]
+        # for item_name in inventory:
+        #     if any(fuel_type in item_name for fuel_type in fuel_items):
+        #         fuel += inventory[item_name]
+        # if (fuel_level < 2000) & fuel < 25:
+        #     await go_to(home, turtle)
+        #     # await unload(turtle, dumpsite)
+        #     # await reload(turtle, fuel_source)
+        #     await go_to(last_position, turtle)
+
+
+    # await go_to(home, turtle)
+
+    # # refueled = await send_refuel(websocket, 1)
+    # # print(f"Refueled: {refueled}")
+    # print("in go mining")
+    # await send_turn(websocket, "left")
+    # print("after turn left in go mining")
+    # # print(location)
+    # await send_inspect(websocket, "down")
+    # print("after the send inspect")
+    # for i in range(20):
+    #     print("iteration " + str(i))
+    #     print(await send_move(websocket, "up"))
+    # # print("after the up movement")
+    # # print(block)
+    # location = await send_gps(websocket)
+    # print(location)
+    # pass
+
+
+# async def keep_alive(websocket, interval=30):
+#     while True:
+#         try:
+#             await websocket.ping()
+#             #await websocket.recv()
+#             await asyncio.sleep(interval)
+#         except websockets.ConnectionClosed:
+#             break
 
 async def handle_message(websocket):
     async for message in websocket:
