@@ -22,12 +22,14 @@ async def send_command(websocket, command):
     response = await current_commands[id]
     return response
 
+
 async def send_gps(websocket):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "gps"}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     return response
+
 
 async def send_inspect(websocket, direction):
     # print("in send inspect")
@@ -42,6 +44,7 @@ async def send_inspect(websocket, direction):
     else:
         return None
 
+
 async def send_dig(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "dig", "direction": direction}))
@@ -49,12 +52,14 @@ async def send_dig(websocket, direction):
     response = await current_commands[id]
     return response
 
+
 async def check_inventory(websocket):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "inventory"}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     return response
+
 
 async def send_place(websocket, direction):
     id = str(uuid.uuid4())
@@ -65,12 +70,14 @@ async def send_place(websocket, direction):
     response = await current_commands[id]
     return response
 
+
 async def send_move(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "move", "direction": direction}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
     return response
+
 
 async def send_suck(websocket, direction, count=None):
     if count is not None:
@@ -92,6 +99,7 @@ async def send_suck(websocket, direction, count=None):
         response = await current_commands[id]
         return response
 
+
 async def send_turn(websocket, direction):
     id = str(uuid.uuid4())
     await websocket.send(json.dumps({"id": id, "type": "turn", "direction": direction}))
@@ -100,6 +108,7 @@ async def send_turn(websocket, direction):
     # print("after send turn response await")
     # print(response)
     return response
+
 
 async def send_refuel(websocket, slot=None):
     if slot is not None:
@@ -115,24 +124,30 @@ async def send_refuel(websocket, slot=None):
         response = await current_commands[id]
         return response
 
-async def send_pump(websocket, slot):
-    if slot["item_name"] is None:
-        id = str(uuid.uuid4())
-        await websocket.send(json.dumps({"id": id, "type": "pump"}))
-        current_commands[id] = asyncio.get_event_loop().create_future()
-        response = await current_commands[id]
-        return response
-    else:
-        print()
 
-async def send_dump(websocket, slots):
-    for slot in slots:
-        if slot != 1 and slot["item_name"] is not None:
-            id = str(uuid.uuid4())
-            await websocket.send(json.dumps({"id": id, "type": "dump"}))
-            current_commands[id] = asyncio.get_event_loop().create_future()
-            response = await current_commands[id]
-            return response
+async def send_get_inv(websocket):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, "type": "get_inv"}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
+
+async def send_pump(websocket, slot):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, "type": "pump", "slot": slot}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
+
+async def send_dump(websocket):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, "type": "dump"}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
 
 def check_do_not_break(name):
     do_not_break_list = [
@@ -143,6 +158,7 @@ def check_do_not_break(name):
     if name in do_not_break_list:
         return True
     return False
+
 
 class Turtle:
     def __init__(self, name, websocket):
@@ -242,7 +258,6 @@ class Turtle:
         await self.turn_left()
         return results
 
-
     async def inspect_bottom(self):
         results = {}
         results["down"] = await self.inspect_down()
@@ -258,9 +273,13 @@ class Turtle:
 def y_from(here, y):
     diff = y - here["y"]
     return diff
+
+
 def x_from(here, x):
     diff = x - here["x"]
     return diff
+
+
 def z_from(here, z):
     diff = z - here["z"]
     return diff
@@ -270,8 +289,19 @@ def is_valuable(block):
     if block is None:
         return False
     name = block.get("name", "")
-    valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone","ore"]
+    valuable_keywords = [
+        "coal",
+        "iron",
+        "gold",
+        "copper",
+        "diamond",
+        "lapis",
+        "emerald",
+        "redstone",
+        "ore",
+    ]
     return any(ore in name for ore in valuable_keywords)
+
 
 def dig_valuable(blocks):
     """
@@ -280,7 +310,11 @@ def dig_valuable(blocks):
     :param blocks: Dictionary like {"up": {...}, "left": {...}, ...}
     :return: List of instructions (e.g. ["dig_down", "turn_left", "dig", ...])
     """
-    valuable_directions = [direction for direction, block in blocks.items() if is_valuable(block) and block is not None]
+    valuable_directions = [
+        direction
+        for direction, block in blocks.items()
+        if is_valuable(block) and block is not None
+    ]
     instructions = []
 
     for direction in ["down", "up", "forward"]:
@@ -288,16 +322,46 @@ def dig_valuable(blocks):
             instructions.append(f"dig_{direction}" if direction != "forward" else "dig")
             valuable_directions.remove(direction)
 
-    if "left" in valuable_directions and "behind" in valuable_directions and "right" not in valuable_directions:
-        instructions += ["turn_left", "dig", "turn_left", "dig", "turn_left", "turn_left"]
+    if (
+        "left" in valuable_directions
+        and "behind" in valuable_directions
+        and "right" not in valuable_directions
+    ):
+        instructions += [
+            "turn_left",
+            "dig",
+            "turn_left",
+            "dig",
+            "turn_left",
+            "turn_left",
+        ]
         valuable_directions.remove("left")
         valuable_directions.remove("behind")
-    elif "right" in valuable_directions and "behind" in valuable_directions and "left" not in valuable_directions:
-        instructions += ["turn_right", "dig", "turn_right", "dig", "turn_left", "turn_left"]
+    elif (
+        "right" in valuable_directions
+        and "behind" in valuable_directions
+        and "left" not in valuable_directions
+    ):
+        instructions += [
+            "turn_right",
+            "dig",
+            "turn_right",
+            "dig",
+            "turn_left",
+            "turn_left",
+        ]
         valuable_directions.remove("right")
         valuable_directions.remove("behind")
     elif all(d in valuable_directions for d in ["left", "right", "behind"]):
-        instructions += ["turn_left", "dig", "turn_left", "dig", "turn_left", "dig", "turn_left"]
+        instructions += [
+            "turn_left",
+            "dig",
+            "turn_left",
+            "dig",
+            "turn_left",
+            "dig",
+            "turn_left",
+        ]
         valuable_directions.remove("left")
         valuable_directions.remove("right")
         valuable_directions.remove("behind")
@@ -305,7 +369,7 @@ def dig_valuable(blocks):
     turn_map = {
         "left": ["turn_left", "dig", "turn_right"],
         "right": ["turn_right", "dig", "turn_left"],
-        "behind": ["turn_left", "turn_left", "dig", "turn_left", "turn_left"]
+        "behind": ["turn_left", "turn_left", "dig", "turn_left", "turn_left"],
     }
 
     for direction in ["left", "right", "behind"]:
@@ -313,6 +377,7 @@ def dig_valuable(blocks):
             instructions += turn_map[direction]
 
     return instructions
+
 
 async def mine(blocks, turtle):
     """
@@ -338,6 +403,7 @@ async def mine(blocks, turtle):
         else:
             print(f"Unknown instruction: {instruction}")
 
+
 async def tunnel(turtle, axis, pattern, n):
     """
     :param turtle: the turtle
@@ -351,7 +417,7 @@ async def tunnel(turtle, axis, pattern, n):
         "top": turtle.inspect_top,
         "bottom": turtle.inspect_bottom,
         "up": turtle.dig_up,
-        "down": turtle.dig_down
+        "down": turtle.dig_down,
     }
 
     for i in range(n):
@@ -370,16 +436,14 @@ async def tunnel(turtle, axis, pattern, n):
             elif pattern == "up":
                 await turtle.up()
 
+
 async def tunnel_transition(turtle, transition_type, reflection):
     """
     :param turtle: the turtle
     :param transition_type: from which tunnel to which tunnel
     :param reflection: which way does the turtle need to turn
     """
-    reflection_map = {
-        "right": turtle.turn_right,
-        "left": turtle.turn_left
-    }
+    reflection_map = {"right": turtle.turn_right, "left": turtle.turn_left}
 
     if transition_type == "interior":
         action = reflection_map.get(reflection)
@@ -419,6 +483,7 @@ async def tunnel_transition(turtle, transition_type, reflection):
             await turtle.dig()
             await turtle.forward()
         await action()
+
 
 async def mine_chunk(turtle):
     """
@@ -521,13 +586,16 @@ async def mine_chunk(turtle):
     for i in range(16):
         await turtle.forward()
 
+
 def get_direction_index(axis, direction):
     return CARDINALS.index((axis, direction))
+
 
 def get_turn_diff(current_axis, current_dir, target_axis, target_dir):
     current = get_direction_index(current_axis, current_dir)
     target = get_direction_index(target_axis, target_dir)
     return (target - current) % 4
+
 
 async def orient(turtle):
     """
@@ -555,6 +623,7 @@ async def orient(turtle):
     await turtle.turn_left()
     return axis, direction
 
+
 async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
     """
     points the turtle in the cardinal direction it needs to be facing
@@ -581,6 +650,7 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
         await turtle.turn_left()
         return
 
+
 async def cruise(turtle, axis, direction, destination):
     """
     sends the turtle toward its destination on the x and z axis
@@ -604,6 +674,7 @@ async def cruise(turtle, axis, direction, destination):
         for i in range(abs(dz)):
             await turtle.forward()
 
+
 async def go_to(location, turtle):
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 170)
@@ -625,6 +696,7 @@ async def pump_n_dump(turtle, chest, inventory):
     await turtle.turn_left()
     await send_pump(turtle.websocket, inventory)
 
+
 async def go_mining(turtle, chunks, home, chest, the_mines):
     """
     :param turtle:
@@ -634,7 +706,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :param the_mines:
     :return:
     """
-    #move the turtle to its mining location
+    # move the turtle to its mining location
     await go_to(the_mines, turtle)
 
     # each chunk = 738 fuel
@@ -657,8 +729,9 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
             await pump_n_dump(turtle, chest, inventory)
             await go_to(last_position, turtle)
 
-    #move the turtle back home to await orders
+    # move the turtle back home to await orders
     await go_to(home, turtle)
+
 
 async def handle_message(websocket):
     async for message in websocket:
@@ -677,8 +750,12 @@ async def handle_message(websocket):
                     chunks = int(mssg["chunks"])  # int
                     home = mssg["home"]  # dict: { "x": ..., "y": ..., "z": ... }
                     chest = mssg["chest"]  # dict: { "x": ..., "y": ..., "z": ... }
-                    destination = mssg["destination"] # dict: { "x": ..., "y": ..., "z": ... }
-                    asyncio.get_event_loop().create_task(go_mining(turtle, chunks, home, chest, destination))
+                    destination = mssg[
+                        "destination"
+                    ]  # dict: { "x": ..., "y": ..., "z": ... }
+                    asyncio.get_event_loop().create_task(
+                        go_mining(turtle, chunks, home, chest, destination)
+                    )
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
                 command = current_commands.pop(mssg["command_id"])

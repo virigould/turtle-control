@@ -1,8 +1,7 @@
 local random = math.random
 local ws, err = http.websocket("ws://localhost:7788")
 local computer_info = nil
-local args = {...}
-
+local args = { ... }
 
 local function uuid()
 	local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
@@ -423,10 +422,57 @@ function handle_message(message)
 		end
 	elseif info["type"] == "test" then
 		print("It got the test command")
+	elseif info["type"] == "get_inv" then
+		local chest = peripheral.wrap("front")
+		if chest == nil then
+			local output = { command_id = info["id"], command_output = "Could not obtain chest handle" }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		else
+			local output = { command_id = info["id"], command_output = chest.list() }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		end
+	elseif info["type"] == "dump" then
+		local chest = peripheral.wrap("front")
+		if chest == nil then
+			local output = { command_id = info["id"], command_output = "Could not obtain chest handle" }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		else
+			local output = { command_id = info["id"], command_output = {} }
+			for i = 1, 9, 1 do
+				local amount = chest.pullItems("front", i)
+				output["command_output"].insert(i, amount)
+			end
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		end
+		print("oh im boutta bust")
 	elseif info["type"] == "pump" then
-        print("oh im boutta bust")
-    elseif info["type"] == "dump" then
-        print("gross")
+		local chest = peripheral.wrap("front")
+		if chest == nil then
+			local output = { command_id = info["id"], command_output = "Could not obtain chest handle" }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		else
+			local output = { command_id = info["id"], command_output = chest.pushItems("front", info["slot"]) }
+			ws.send(textutils.serializeJSON(output))
+			do
+				return
+			end
+		end
+		print("gross")
 	else
 		print("Could not understand the command")
 	end
@@ -434,27 +480,27 @@ function handle_message(message)
 end
 
 function main()
-    local length = #args
-    if #arg < 10 then
-        print("Usage: startserver.lua chunks homeX homeY homeZ chestX chestY chestZ minesX minesY minesZ")
-        return
-    end
-    local chunks = arg[1]
-    local home = {
-        x = tonumber(arg[2]),
-        y = tonumber(arg[3]),
-        z = tonumber(arg[4])
-    }
-    local chest = {
-        x = tonumber(arg[5]),
-        y = tonumber(arg[6]),
-        z = tonumber(arg[7])
-    }
-    local destination = {
-        x = tonumber(arg[8]),
-        y = tonumber(arg[9]),
-        z = tonumber(arg[10])
-    }
+	local length = #args
+	if #arg < 10 then
+		print("Usage: startserver.lua chunks homeX homeY homeZ chestX chestY chestZ minesX minesY minesZ")
+		return
+	end
+	local chunks = arg[1]
+	local home = {
+		x = tonumber(arg[2]),
+		y = tonumber(arg[3]),
+		z = tonumber(arg[4]),
+	}
+	local chest = {
+		x = tonumber(arg[5]),
+		y = tonumber(arg[6]),
+		z = tonumber(arg[7]),
+	}
+	local destination = {
+		x = tonumber(arg[8]),
+		y = tonumber(arg[9]),
+		z = tonumber(arg[10]),
+	}
 
 	if file_exists("computer_info.txt") then
 		local file = io.open("computer_info.txt", "r")
@@ -466,16 +512,16 @@ function main()
 	end
 
 	local message = {
-	    computer_name = computer_info.name,
-	    job = computer_info.job,
-	    chunks = tonumber(chunks),
-	    home = home,
-	    chest = chest,
-	    placement = placement,
-	    destination = destination
-    }
+		computer_name = computer_info.name,
+		job = computer_info.job,
+		chunks = tonumber(chunks),
+		home = home,
+		chest = chest,
+		placement = placement,
+		destination = destination,
+	}
 
-    ws.send(textutils.serializeJSON(message))
+	ws.send(textutils.serializeJSON(message))
 
 	--ws.send("ready")
 	while true do
