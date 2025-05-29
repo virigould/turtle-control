@@ -454,8 +454,7 @@ function main()
         x = tonumber(arg[8]),
         y = tonumber(arg[9]),
         z = tonumber(arg[10])
-
-        }
+    }
 
 	if file_exists("computer_info.txt") then
 		local file = io.open("computer_info.txt", "r")

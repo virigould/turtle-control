@@ -125,7 +125,6 @@ async def send_pump(websocket, slot):
     else:
         print()
 
-
 async def send_dump(websocket, slots):
     for slot in slots:
         if slot != 1 and slot["item_name"] is not None:
