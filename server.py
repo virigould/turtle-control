@@ -1,4 +1,6 @@
 import asyncio
+from wsgiref.validate import check_status
+
 import websockets
 import json
 import uuid
@@ -119,6 +121,11 @@ async def send_refuel(websocket, slot=None):
         response = await current_commands[id]
         return response
 
+'''    
+async def send_pump(websocket, slot):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, ""}))
+'''
 
 def check_do_not_break(name):
     do_not_break_list = [
@@ -603,15 +610,19 @@ async def go_to(location, turtle):
     print(f"{'descending' if y_distance < 0 else 'ascending'} {abs(y_distance)} blocks")
     await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
 
-"""async def unload(turtle, position):
-    if position == "left":
-        for i in range(10):
-            message = await turtle.forward()
-            if """
+async def pump_n_dump(turtle, chest, placement):
+    if placement == "right":
+        await turtle.turn_left()
+        await turtle.forward()
+        await turtle.turn_right()
+    for i in range(10):
+        message = await turtle.forward()
+        if message["command_output"] == "Movement obstructed":
+            break
 
-async def go_mining(turtle, chunks):
-    home = await send_gps(turtle.websocket)
 
+
+async def go_mining(turtle, home, chest, placement, chunks, gotoX, gotoZ):
     # move the turtle to the desired depth
     # y_distance = y_from(home, -48)
     # await tunnel(turtle, "y", "down", y_distance)
@@ -619,23 +630,22 @@ async def go_mining(turtle, chunks):
     # each chunk = 738 fuel
     for chunk in range(chunks):
         await turtle.forward()
-        # await mine_chunk(turtle)
-        # last_position = await send_gps(turtle.websocket)
+        await mine_chunk(turtle)
+        last_position = await send_gps(turtle.websocket)
         await send_refuel(turtle.websocket, 1)
-        # await turtle.dig()
-        # response = await turtle.forward()
-        # fuel_level = int(response["command_output"])
-        # inventory = await check_inventory(turtle.websocket)
-        # fuel = 0
-        # fuel_items = ["biofuel", "coal", "wood", "lava", "blaze_rod"]
-        # for item_name in inventory:
-        #     if any(fuel_type in item_name for fuel_type in fuel_items):
-        #         fuel += inventory[item_name]
-        # if (fuel_level < 2000) & fuel < 25:
-        #     await go_to(home, turtle)
-        #     # await unload(turtle, dumpsite)
-        #     # await reload(turtle, fuel_source)
-        #     await go_to(last_position, turtle)
+        await turtle.dig()
+        response = await turtle.forward()
+        fuel_level = int(response["command_output"])
+        inventory = await check_inventory(turtle.websocket)
+        fuel = 0
+        fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
+        for item_name in inventory:
+            if any(fuel_type in item_name for fuel_type in fuel_items):
+                fuel += inventory[item_name]
+        if (fuel_level < 2000) & fuel < 25:
+            await go_to(home, turtle)
+            # await pump_n_dump(turtle, chest, placement)
+            await go_to(last_position, turtle)
 
 
     # await go_to(home, turtle)
@@ -681,7 +691,13 @@ async def handle_message(websocket):
                 if mssg["job"] == "miner":
                     # this has to be in the background and can not be awaited as it will block all the threads
                     turtle = Turtle(mssg["computer_name"], websocket)
-                    asyncio.get_event_loop().create_task(go_mining(turtle,1))
+                    home = mssg["home"]  # dict: { "x": ..., "y": ..., "z": ... }
+                    chest = mssg["chest"]  # dict: { "x": ..., "y": ..., "z": ... }
+                    placement = mssg["placement"]  # string
+                    chunks = int(mssg["chunks"])  # int
+                    gotoX = int(mssg["gotoX"])
+                    gotoZ = int(mssg["gotoZ"])
+                    asyncio.get_event_loop().create_task(go_mining(turtle, home, chest, placement, chunks, gotoX, gotoZ))
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
                 command = current_commands.pop(mssg["command_id"])

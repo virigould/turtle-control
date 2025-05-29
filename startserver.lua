@@ -423,6 +423,10 @@ function handle_message(message)
 		end
 	elseif info["type"] == "test" then
 		print("It got the test command")
+	elseif info["type"] == "pump" then
+        print("oh im boutta bust")
+    elseif info["type"] == "dump" then
+        print("gross")
 	else
 		print("Could not understand the command")
 	end
@@ -431,6 +435,25 @@ end
 
 function main()
     local length = #args
+    if #arg < 10 then
+        print("Usage: script.lua homeX homeY homeZ chestX chestY chestZ placement chunks gotoX, gotoZ")
+        return
+    end
+    local home = {
+        x = tonumber(arg[1]),
+        y = tonumber(arg[2]),
+        z = tonumber(arg[3])
+    }
+    local chest = {
+        x = tonumber(arg[4]),
+        y = tonumber(arg[5]),
+        z = tonumber(arg[6])
+    }
+    local placement = arg[7]
+    local chunks = arg[8]
+    local gotoX = arg[9]
+    local gotoZ = arg[10]
+
 	if file_exists("computer_info.txt") then
 		local file = io.open("computer_info.txt", "r")
 		computer_info = textutils.unserialize(file:read("*all"))
@@ -439,7 +462,20 @@ function main()
 		local file = io.open("computer_info.txt", "w")
 		file:write(textutils.serialize(computer_info))
 	end
-	ws.send(string.format('{"computer_name": "%s", "job": "%s"}', computer_info.name, computer_info.job))
+
+	local message = {
+	    computer_name = computer_info.name,
+	    job = computer_info.job,
+	    home = home,
+	    chest = chest,
+	    placement = placement,
+	    chunks = tonumber(chunks),
+	    gotoX = tonumber(gotoX),
+	    gotoZ = tonumber(gotoZ)
+    }
+
+    ws.send(textutils.serializeJSON(message))
+
 	--ws.send("ready")
 	while true do
 		local message = ws.receive()
