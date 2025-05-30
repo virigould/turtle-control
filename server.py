@@ -331,6 +331,7 @@ def dig_valuable(blocks):
         for direction, block in blocks.items()
         if is_valuable(block) and block is not None
     ]
+
     instructions = []
 
     for direction in ["down", "up", "forward"]:
@@ -708,6 +709,12 @@ async def navigate(turtle, axis, direction, destination):
 
 
 async def go_to(location, turtle):
+    """
+    sends the turtle to a specified set of coordinates (x, y, z)
+    :param location: dict of coordinates
+    :param turtle:
+    :return:
+    """
     here = await send_gps(turtle.websocket)
     y_distance = y_from(here, 175)
     await tunnel(turtle, "y", "up", y_distance)
@@ -720,6 +727,12 @@ async def go_to(location, turtle):
 
 
 async def pump_n_dump(turtle, chest):
+    """
+    have the turtle drop all its items in its inventory into a chest, then go to a new chest to pick up fuel
+    :param turtle:
+    :param chest: dict of coordinates
+    :return:
+    """
     axis, direction = await orient(turtle)
     await navigate(turtle, axis, direction, chest)
     await send_dump(turtle.websocket)
@@ -730,6 +743,11 @@ async def pump_n_dump(turtle, chest):
 
 
 async def refuel_and_relieve(turtle):
+    """
+    refuel the turtle with items in its inventory, then drop the junk blocks its collected
+    :param turtle:
+    :return: fuel_level and fuel
+    """
     fuel_message = await send_refuel(turtle.websocket, 1)
     if fuel_message["command_output"] == "No items to combust":
         for i in range(2, 10):
@@ -758,18 +776,15 @@ async def refuel_and_relieve(turtle):
 
 async def go_mining(turtle, chunks, home, chest, the_mines):
     """
+    send the turtle mining
     :param turtle:
-    :param chunks:
-    :param home:
-    :param chest:
-    :param the_mines:
+    :param chunks: number of chunks to mine
+    :param home: dict of coordinates
+    :param chest: dict of coordinates
+    :param the_mines: dict of coordinates
     :return:
     """
 
-    await clear_falling_blocks(turtle)
-    await turtle.forward()
-
-    '''    
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
 
@@ -786,7 +801,6 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
 
     # move the turtle back home to await orders
     await go_to(home, turtle)
-    '''
 
 
 async def handle_message(websocket):
@@ -806,9 +820,7 @@ async def handle_message(websocket):
                     chunks = int(mssg["chunks"])  # int
                     home = mssg["home"]  # dict: { "x": ..., "y": ..., "z": ... }
                     chest = mssg["chest"]  # dict: { "x": ..., "y": ..., "z": ... }
-                    destination = mssg[
-                        "destination"
-                    ]  # dict: { "x": ..., "y": ..., "z": ... }
+                    destination = mssg["destination"]  # dict: { "x": ..., "y": ..., "z": ... }
                     asyncio.get_event_loop().create_task(
                         go_mining(turtle, chunks, home, chest, destination)
                     )
