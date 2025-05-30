@@ -424,6 +424,7 @@ async def mine(blocks, turtle):
 async def clear_falling_blocks(turtle):
     while True:
         result = await turtle.inspect()
+        print(result)
         if not result["success"]:
             break
 
@@ -795,7 +796,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
 
 async def handle_message(websocket):
     async for message in websocket:
-        print("Message: " + message)
+        # print("Message: " + message)
         mssg = json.loads(message)
         if "computer_name" in mssg:
             client_id = mssg["computer_name"]
