@@ -756,7 +756,7 @@ async def refuel_and_relieve(turtle):
                 break
     await clear_falling_blocks(turtle)
     response = await turtle.forward()
-    fuel_level = int(response["command_output"])
+    fuel_level = response["command_output"]
     inventory = await check_inventory(turtle.websocket)
     fuel = 0
     fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
@@ -787,6 +787,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
 
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
+
 
     # each chunk = 738 fuel
     for chunk in range(chunks):
