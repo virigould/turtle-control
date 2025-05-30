@@ -479,7 +479,6 @@ function handle_message(message)
 				return
 			end
 		end
-		print("oh im boutta bust")
 	elseif info["type"] == "pump" then
 		local chest = peripheral.wrap("front")
 		if chest == nil then
@@ -495,7 +494,6 @@ function handle_message(message)
 				return
 			end
 		end
-		print("gross")
 	else
 		print("Could not understand the command")
 	end

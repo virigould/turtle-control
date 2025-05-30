@@ -513,6 +513,7 @@ async def mine_chunk(turtle):
     ##################
 
     for i in range(2):
+        await refuel_and_relieve(turtle)
         # bottom blue tunnel
         await tunnel(turtle, "z", "walls", 16)
         # bottom blue to green
@@ -544,6 +545,7 @@ async def mine_chunk(turtle):
     ##################
 
     for i in range(3):
+        await refuel_and_relieve(turtle)
         # purple to yellow
         await tunnel_transition(turtle, "top trough to bottom trough", "left")
         # yellow and blue tunnels
@@ -561,6 +563,7 @@ async def mine_chunk(turtle):
         await tunnel_transition(turtle, "top trough to bottom trough", "right")
         # green and purple tunnels
         for j in range(4):
+            await refuel_and_relieve(turtle)
             # green tunnel
             await tunnel(turtle, "z", "bottom", 16)
             # green to purple
@@ -579,6 +582,7 @@ async def mine_chunk(turtle):
 
     # top yellow tunnels
     for i in range(4):
+        await refuel_and_relieve(turtle)
         if i % 2 == 0:
             # tunnel
             await tunnel(turtle, "z", "walls", 16)
@@ -667,7 +671,7 @@ async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
         return
 
 
-async def cruise(turtle, axis, direction, destination):
+async def navigate(turtle, axis, direction, destination):
     """
     sends the turtle toward its destination on the x and z axis
     :param turtle:
@@ -693,24 +697,51 @@ async def cruise(turtle, axis, direction, destination):
 
 async def go_to(location, turtle):
     here = await send_gps(turtle.websocket)
-    y_distance = y_from(here, 170)
+    y_distance = y_from(here, 175)
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
-    await cruise(turtle, axis, direction, location)
+    await navigate(turtle, axis, direction, location)
     current = await send_gps(turtle.websocket)
     y_distance = y_from(current, location.get("y"))
     direction = 1 if y_distance > 0 else -1
     await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
 
 
-async def pump_n_dump(turtle, chest, inventory):
+async def pump_n_dump(turtle, chest):
     axis, direction = await orient(turtle)
-    await cruise(turtle, axis, direction, chest)
-    await send_dump(turtle.websocket, inventory)
+    await navigate(turtle, axis, direction, chest)
+    await send_dump(turtle.websocket)
     await turtle.turn_right()
     await turtle.forward()
     await turtle.turn_left()
-    await send_pump(turtle.websocket, inventory)
+    await send_pump(turtle.websocket, 1)
+
+
+async def refuel_and_relieve(turtle):
+    fuel_message = await send_refuel(turtle.websocket, 1)
+    if fuel_message["command_output"] == "No items to combust":
+        for i in range(2, 10):
+            fuel_message = await send_refuel(turtle.websocket, i)
+            if fuel_message["command_output"] != "No items to combust":
+                break
+    await turtle.dig()
+    response = await turtle.forward()
+    fuel_level = int(response["command_output"])
+    inventory = await check_inventory(turtle.websocket)
+    fuel = 0
+    fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
+    junk_items = ["cobble", "dirt", "gravel", "tuff", "sand", "andesite", "diorite", "calcite", "granite"]
+    for slot, item in inventory.items():
+        if not item:
+            continue
+        item_name = item["name"]
+        if any(fuel_type in item_name for fuel_type in fuel_items):
+            fuel += item["count"]
+        if any(junk in item_name for junk in junk_items):
+            await send_select_slot(turtle.websocket, slot)
+            await send_drop(turtle.websocket)
+
+    return fuel_level, fuel
 
 
 async def go_mining(turtle, chunks, home, chest, the_mines):
@@ -722,31 +753,27 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :param the_mines:
     :return:
     """
+
+    await turtle.dig()
+
+    '''    
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
 
     # each chunk = 738 fuel
     for chunk in range(chunks):
-        await turtle.forward()
         await mine_chunk(turtle)
+        fuel_level, fuel = await refuel_and_relieve(turtle)
+        await send_select_slot(turtle.websocket, 1)
         last_position = await send_gps(turtle.websocket)
-        await send_refuel(turtle.websocket, 1)
-        await turtle.dig()
-        response = await turtle.forward()
-        fuel_level = int(response["command_output"])
-        inventory = await check_inventory(turtle.websocket)
-        fuel = 0
-        fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
-        for item_name in inventory:
-            if any(fuel_type in item_name for fuel_type in fuel_items):
-                fuel += inventory[item_name]
-        if fuel_level < 2000 & fuel < 15:
+        if fuel_level < 10000 & fuel < 10:
             await go_to(home, turtle)
-            await pump_n_dump(turtle, chest, inventory)
+            await pump_n_dump(turtle, chest)
             await go_to(last_position, turtle)
 
     # move the turtle back home to await orders
     await go_to(home, turtle)
+    '''
 
 
 async def handle_message(websocket):
