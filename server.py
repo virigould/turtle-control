@@ -424,7 +424,7 @@ async def mine(blocks, turtle):
 async def clear_falling_blocks(turtle):
     while True:
         block = await turtle.inspect()
-        name = block.get["name"]
+        name = block.get("name", "")
         if "sand" in name or "gravel" in name:
             await turtle.dig()
             await asyncio.sleep(0.2)
