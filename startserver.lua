@@ -18,9 +18,11 @@ end
 
 function check_inventory()
 	local inventory = {}
-	for i = 1, 9, 1 do
+	for i = 1, 16, 1 do
 		local item = turtle.getItemDetail(i)
+		print(item)
 		inventory[i] = item
+		print(inventory)
 	end
 	return inventory
 end
