@@ -750,7 +750,7 @@ async def refuel_and_relieve(turtle):
     """
     fuel_message = await send_refuel(turtle.websocket, 1)
     if fuel_message["command_output"] == "No items to combust":
-        for i in range(2, 10):
+        for i in range(2, 17):
             fuel_message = await send_refuel(turtle.websocket, i)
             if fuel_message["command_output"] != "No items to combust":
                 break
