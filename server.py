@@ -402,7 +402,7 @@ async def mine(blocks, turtle):
     """
     if not blocks:
         return
-        # map strings to methods
+
     instruction_map = {
         "dig": turtle.dig,
         "dig_up": turtle.dig_up,
@@ -410,6 +410,7 @@ async def mine(blocks, turtle):
         "turn_left": turtle.turn_left,
         "turn_right": turtle.turn_right,
     }
+
     instructions = dig_valuable(blocks)
 
     for instruction in instructions:
@@ -418,6 +419,22 @@ async def mine(blocks, turtle):
             await action()
         else:
             print(f"Unknown instruction: {instruction}")
+
+
+async def clear_falling_blocks(turtle):
+    while True:
+        result = await turtle.inspect()
+        if not result["success"]:
+            break
+
+        block = result["result"]
+        name = block.get("name", "")
+
+        if "sand" in name or "gravel" in name:
+            await turtle.dig()
+            await asyncio.sleep(0.5)
+        else:
+            break
 
 
 async def tunnel(turtle, axis, pattern, n):
@@ -442,7 +459,7 @@ async def tunnel(turtle, axis, pattern, n):
             blocks = await action()
             if blocks:
                 await mine(blocks, turtle)
-            await turtle.dig()
+            await clear_falling_blocks(turtle)
             await turtle.forward()
         else:
             action = pattern_map.get(pattern)
@@ -472,9 +489,9 @@ async def tunnel_transition(turtle, transition_type, reflection):
         action = reflection_map.get(reflection)
         await turtle.down()
         await action()
-        await turtle.dig()
+        await clear_falling_blocks(turtle)
         await turtle.forward()
-        await turtle.dig()
+        await clear_falling_blocks(turtle)
         await turtle.forward()
         await turtle.dig_down()
         await turtle.down()
@@ -483,11 +500,11 @@ async def tunnel_transition(turtle, transition_type, reflection):
     elif transition_type == "top trough to bottom trough":
         action = reflection_map.get(reflection)
         await action()
-        await turtle.dig()
+        await clear_falling_blocks(turtle)
         await turtle.forward()
         await turtle.dig_up()
         await turtle.up()
-        await turtle.dig()
+        await clear_falling_blocks(turtle)
         await turtle.forward()
         await action()
 
@@ -496,7 +513,7 @@ async def tunnel_transition(turtle, transition_type, reflection):
         await turtle.down()
         await action()
         for i in range(4):
-            await turtle.dig()
+            await clear_falling_blocks(turtle)
             await turtle.forward()
         await action()
 
@@ -724,7 +741,7 @@ async def refuel_and_relieve(turtle):
             fuel_message = await send_refuel(turtle.websocket, i)
             if fuel_message["command_output"] != "No items to combust":
                 break
-    await turtle.dig()
+    await clear_falling_blocks(turtle)
     response = await turtle.forward()
     fuel_level = int(response["command_output"])
     inventory = await check_inventory(turtle.websocket)
@@ -754,7 +771,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :return:
     """
 
-    await turtle.dig()
+    await clear_falling_blocks(turtle)
 
     '''    
     # move the turtle to its mining location
