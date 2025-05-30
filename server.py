@@ -767,6 +767,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     """
 
     await clear_falling_blocks(turtle)
+    await turtle.forward()
 
     '''    
     # move the turtle to its mining location
