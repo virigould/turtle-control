@@ -768,6 +768,7 @@ async def refuel_and_relieve(turtle):
         if not item:
             continue
         item_name = item["name"]
+        print(slot, item)
         if any(fuel_type in item_name for fuel_type in fuel_items):
             fuel += item["count"]
         if any(junk in item_name for junk in junk_items):
@@ -788,7 +789,9 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :return:
     """
 
-    # move the turtle to its mining location
+    await refuel_and_relieve(turtle)
+
+    '''# move the turtle to its mining location
     await go_to(the_mines, turtle)
 
     # each chunk = 738 fuel
@@ -803,7 +806,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
             await go_to(last_position, turtle)
 
     # move the turtle back home to await orders
-    await go_to(home, turtle)
+    await go_to(home, turtle)'''
 
 
 async def handle_message(websocket):
