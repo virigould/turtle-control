@@ -772,9 +772,8 @@ async def refuel_and_relieve(turtle):
         if any(fuel_type in item_name for fuel_type in fuel_items):
             fuel += item["count"]
         if any(junk in item_name for junk in junk_items):
-            await send_select_slot(turtle.websocket, slot)
+            await send_select_slot(turtle.websocket, int(slot))
             await send_drop(turtle.websocket)
-
     return fuel_level, fuel
 
 

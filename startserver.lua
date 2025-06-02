@@ -22,9 +22,6 @@ function check_inventory()
         local item = turtle.getItemDetail(slot)
         if item then
             inventory[tostring(slot)] = item
-            print(slot, item.name, item.count)
-        else
-            print(slot, "empty")
         end
     end
     return inventory
@@ -428,8 +425,9 @@ function handle_message(message)
 	elseif info["type"] == "test" then
 		print("It got the test command")
 	elseif info["type"] == "select_slot" then
-		local selected = turtle.select(info["slot"])
-		local output = { command_id = info["id"], command_output = string.format("Slot #%d", info["slot"]) }
+        local slot = tonumber(info["slot"])
+		local selected = turtle.select(slot)
+		local output = { command_id = info["id"], command_output = string.format("Slot #%d", slot) }
 		ws.send(textutils.serializeJSON(output))
 		do
 			return
