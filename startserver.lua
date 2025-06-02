@@ -17,8 +17,16 @@ function file_exists(name)
 end
 
 function check_inventory()
-    local inventory = turtle.list()
-    print(inventory)
+    local inventory = {}
+    for slot = 1, 16 do
+        local item = turtle.getItemDetail(slot)
+        if item then
+            inventory[tostring(slot)] = item
+            print(slot, item.name, item.count)
+        else
+            print(slot, "empty")
+        end
+    end
     return inventory
 end
 
