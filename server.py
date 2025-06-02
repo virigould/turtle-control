@@ -717,9 +717,7 @@ async def go_to(location, turtle):
     :return:
     """
     here = await send_gps(turtle.websocket)
-    print(here)
     y_distance = y_from(here, 130)
-    print(y_distance)
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
     await navigate(turtle, axis, direction, location)
@@ -789,11 +787,6 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :param the_mines: dict of coordinates
     :return:
     """
-
-    print(chunks)
-    print(home)
-    print(chest)
-    print(the_mines)
 
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
