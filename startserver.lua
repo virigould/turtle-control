@@ -17,13 +17,9 @@ function file_exists(name)
 end
 
 function check_inventory()
-	local inventory = {}
-	for i = 1, 16, 1 do
-		local item = turtle.getItemDetail(i)
-		inventory[i] = item
-		print(item.displayName)
-	end
-	return inventory
+    local inventory = turtle.list()
+    print(inventory)
+    return inventory
 end
 
 function send_message(message)
