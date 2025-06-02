@@ -21,8 +21,8 @@ function check_inventory()
 	for i = 1, 16, 1 do
 		local item = turtle.getItemDetail(i)
 		inventory[i] = item
-		print(item)
 	end
+    print(inventory)
 	return inventory
 end
 
