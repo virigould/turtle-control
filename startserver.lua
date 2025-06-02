@@ -107,7 +107,6 @@ function handle_message(message)
 	elseif info["type"] == "gps" then
 		local position = vector.new(gps.locate(5))
 		position.command_id = info["id"]
-		print("in the gps")
 		ws.send(textutils.serializeJSON(position))
 		do
 			return
@@ -315,8 +314,6 @@ function handle_message(message)
 	elseif info["type"] == "refuel" then
 		if info["slot"] ~= nil then
 			local fueled, mssg = turtle.refuel()
-			print(fueled)
-			print(mssg)
 			if not fueled then
 				local issue = { command_output = mssg, command_id = info["id"] }
 				ws.send(textutils.serializeJSON(issue))
