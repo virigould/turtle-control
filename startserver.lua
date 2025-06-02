@@ -472,7 +472,7 @@ function handle_message(message)
 			end
 		else
 			local output = { command_id = info["id"], command_output = {} }
-			for i = 1, 9, 1 do
+			for i = 1, 16, 1 do
 				local amount = chest.pullItems("front", i)
 				output["command_output"].insert(i, amount)
 			end

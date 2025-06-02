@@ -762,6 +762,8 @@ async def refuel_and_relieve(turtle):
     fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
     junk_items = ["cobble", "dirt", "gravel", "tuff", "sand", "andesite", "diorite", "calcite", "granite"]
     for slot, item in inventory.items():
+        if slot == "command_id":
+            continue
         if not item:
             continue
         item_name = item["name"]
