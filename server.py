@@ -790,7 +790,6 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
 
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
-    await turtle.forward()
 
     # each chunk = 738 fuel
     for chunk in range(chunks):
