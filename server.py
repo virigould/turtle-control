@@ -768,13 +768,37 @@ async def refuel_and_relieve(turtle):
         if not item:
             continue
         item_name = item["name"]
-        print(slot, item)
         if any(fuel_type in item_name for fuel_type in fuel_items):
             fuel += item["count"]
         if any(junk in item_name for junk in junk_items):
             await send_select_slot(turtle.websocket, int(slot))
             await send_drop(turtle.websocket)
     return fuel_level, fuel
+
+
+async def im_boutta_bust(websocket, threshold=15, item_threshold=60):
+    inventory = await check_inventory(websocket)
+    full_slots = 0
+
+    rare_items = ["diamond", "emerald", "ruby", "sapphire", "peridot", "cinnabar"]
+    ultra_items = ["ancient_debris", "allthemodium", "vibranium", "unobtainium"]
+
+    for slot, item in inventory.items():
+        if slot == "command_id" or not item:
+            continue
+
+        count = item["count"]
+        name = item["name"]
+
+        if count > item_threshold:
+            full_slots += 1
+        if any(rare in name for rare in rare_items):
+            if count > (item_threshold / 2):
+                full_slots += 1
+        if any(ultra in name for ultra in ultra_items):
+            full_slots += 1
+
+    return full_slots >= threshold
 
 
 async def go_mining(turtle, chunks, home, chest, the_mines):
@@ -788,9 +812,8 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :return:
     """
 
-    await refuel_and_relieve(turtle)
 
-    '''# move the turtle to its mining location
+    # move the turtle to its mining location
     await go_to(the_mines, turtle)
 
     # each chunk = 738 fuel
@@ -803,9 +826,13 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
             await go_to(home, turtle)
             await pump_n_dump(turtle, chest)
             await go_to(last_position, turtle)
+        elif await im_boutta_bust(turtle.websocket):
+            await go_to(home, turtle)
+            await pump_n_dump(turtle, chest)
+            await go_to(last_position, turtle)
 
     # move the turtle back home to await orders
-    await go_to(home, turtle)'''
+    await go_to(home, turtle)
 
 
 async def handle_message(websocket):
