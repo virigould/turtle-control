@@ -23,7 +23,6 @@ function check_inventory()
 		inventory[i] = item
 		print(item.displayName)
 	end
-    print(inventory)
 	return inventory
 end
 
