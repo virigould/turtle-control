@@ -761,7 +761,7 @@ async def refuel_and_relieve(turtle):
     inventory = await check_inventory(turtle.websocket)
     fuel = 0
     fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
-    junk_items = ["cobble", "dirt", "gravel", "tuff", "sand", "andesite", "diorite", "calcite", "granite"]
+    junk_items = ["cobble", "dirt", "gravel", "tuff", "sand", "andesite", "diorite", "calcite", "granite", "grass"]
     for slot, item in inventory.items():
         if slot == "command_id":
             continue
