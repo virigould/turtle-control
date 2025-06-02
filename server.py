@@ -430,6 +430,7 @@ async def clear_falling_blocks(turtle):
             await turtle.dig()
             await asyncio.sleep(0.2)
         else:
+            await turtle.dig()
             break
 
 
@@ -716,7 +717,7 @@ async def go_to(location, turtle):
     :return:
     """
     here = await send_gps(turtle.websocket)
-    y_distance = y_from(here, 250)
+    y_distance = y_from(here, 128)
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
     await navigate(turtle, axis, direction, location)
@@ -789,7 +790,7 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
 
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
-
+    await turtle.forward()
 
     # each chunk = 738 fuel
     for chunk in range(chunks):
