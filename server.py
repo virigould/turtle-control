@@ -36,7 +36,8 @@ async def send_fuel_level(websocket):
     await websocket.send(json.dumps({"id": id, "type": "fuel_level"}))
     current_commands[id] = asyncio.get_event_loop().create_future()
     response = await current_commands[id]
-    return response
+    fuel_level = response["command_output"]
+    return fuel_level
 
 
 async def send_inspect(websocket, direction):
@@ -766,24 +767,11 @@ async def refuel_and_relieve(turtle):
             fuel_message = await send_refuel(turtle.websocket, i)
             if fuel_message["command_output"] != "No items to combust":
                 break
-    await clear_falling_blocks(turtle)
-    response = await turtle.forward()
-    fuel_level = response["command_output"]
+    fuel_level = turtle.get_fuel_level()
     inventory = await check_inventory(turtle.websocket)
     fuel = 0
     fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
-    junk_items = [
-        "cobble",
-        "dirt",
-        "gravel",
-        "tuff",
-        "sand",
-        "andesite",
-        "diorite",
-        "calcite",
-        "granite",
-        "grass",
-    ]
+    junk_items = ["cobble", "dirt", "gravel", "tuff", "sand", "andesite", "diorite", "calcite", "granite", "grass"]
     for slot, item in inventory.items():
         if slot == "command_id":
             continue
