@@ -181,9 +181,9 @@ def do_not_break(name, tags):
         "unobtainium"
     ]
 
-    if tags["silentgear:incorrect_for_diamond_tools"]:
+    if tags.get("silentgear:incorrect_for_diamond_tools"):
         return True
-    if name in do_not_break_list:
+    if any(ore in name for ore in do_not_break_list):
         return True
     return False
 
