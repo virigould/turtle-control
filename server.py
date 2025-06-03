@@ -730,7 +730,7 @@ async def go_to(location, turtle):
     :return:
     """
     here = await send_gps(turtle.websocket)
-    y_distance = y_from(here, 130)
+    y_distance = y_from(here, 250)
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
     await navigate(turtle, axis, direction, location)
