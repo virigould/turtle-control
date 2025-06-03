@@ -174,12 +174,15 @@ async def send_select_slot(websocket, slot):
     return response
 
 
-def do_not_break(name):
+def do_not_break(name, tags):
     do_not_break_list = [
         "allthemodium",
         "vibranium",
         "unobtainium"
     ]
+
+    if tags["silentgear:incorrect_for_diamond_tools"]:
+        return True
     if name in do_not_break_list:
         return True
     return False
@@ -317,7 +320,8 @@ def is_valuable(block):
     if block is None:
         return False
     name = block.get("name", "")
-    if do_not_break(name):
+    tags = block.get("tags","")
+    if do_not_break(name, tags):
         return False
     valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone", "ore"]
     return any(ore in name for ore in valuable_keywords)
@@ -430,10 +434,13 @@ async def clear_falling_blocks(turtle):
     while True:
         block = await turtle.inspect()
         name = block.get("name", "")
+        tags = block.get("tags", "")
         if "sand" in name or "gravel" in name:
             await turtle.dig()
             await asyncio.sleep(0.2)
-        elif do_not_break(name):
+        elif do_not_break(name, tags):
+            await turtle.dig_up()
+            await turtle.up()
             break
         else:
             await turtle.dig()
@@ -817,8 +824,6 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     """
 
     # move the turtle to its mining location
-    response = await turtle.inspect()
-    print(response)
     await go_to(the_mines, turtle)
 
     # each chunk = 738 fuel
