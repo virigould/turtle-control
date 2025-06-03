@@ -31,6 +31,14 @@ async def send_gps(websocket):
     return response
 
 
+async def send_fuel_level(websocket):
+    id = str(uuid.uuid4())
+    await websocket.send(json.dumps({"id": id, "type": "fuel_level"}))
+    current_commands[id] = asyncio.get_event_loop().create_future()
+    response = await current_commands[id]
+    return response
+
+
 async def send_inspect(websocket, direction):
     # print("in send inspect")
     id = str(uuid.uuid4())
@@ -236,6 +244,9 @@ class Turtle:
 
     async def dig_down(self):
         return await send_dig(self.websocket, "down")
+
+    async def get_fuel_level(self):
+        return await send_fuel_level(self.websocket)
 
     async def full_inspect(self):
         results = {}
@@ -761,7 +772,18 @@ async def refuel_and_relieve(turtle):
     inventory = await check_inventory(turtle.websocket)
     fuel = 0
     fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
-    junk_items = ["cobble", "dirt", "gravel", "tuff", "sand", "andesite", "diorite", "calcite", "granite", "grass"]
+    junk_items = [
+        "cobble",
+        "dirt",
+        "gravel",
+        "tuff",
+        "sand",
+        "andesite",
+        "diorite",
+        "calcite",
+        "granite",
+        "grass",
+    ]
     for slot, item in inventory.items():
         if slot == "command_id":
             continue
@@ -812,7 +834,6 @@ async def go_mining(turtle, chunks, home, chest, the_mines):
     :return:
     """
 
-
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
 
@@ -852,7 +873,9 @@ async def handle_message(websocket):
                     chunks = int(mssg["chunks"])  # int
                     home = mssg["home"]  # dict: { "x": ..., "y": ..., "z": ... }
                     chest = mssg["chest"]  # dict: { "x": ..., "y": ..., "z": ... }
-                    destination = mssg["destination"]  # dict: { "x": ..., "y": ..., "z": ... }
+                    destination = mssg[
+                        "destination"
+                    ]  # dict: { "x": ..., "y": ..., "z": ... }
                     asyncio.get_event_loop().create_task(
                         go_mining(turtle, chunks, home, chest, destination)
                     )
