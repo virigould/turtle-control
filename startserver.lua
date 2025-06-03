@@ -17,14 +17,14 @@ function file_exists(name)
 end
 
 function check_inventory()
-    local inventory = {}
-    for slot = 1, 16 do
-        local item = turtle.getItemDetail(slot)
-        if item then
-            inventory[tostring(slot)] = item
-        end
-    end
-    return inventory
+	local inventory = {}
+	for slot = 1, 16 do
+		local item = turtle.getItemDetail(slot)
+		if item then
+			inventory[tostring(slot)] = item
+		end
+	end
+	return inventory
 end
 
 function send_message(message)
@@ -422,7 +422,7 @@ function handle_message(message)
 	elseif info["type"] == "test" then
 		print("It got the test command")
 	elseif info["type"] == "select_slot" then
-        local slot = tonumber(info["slot"])
+		local slot = tonumber(info["slot"])
 		local selected = turtle.select(slot)
 		local output = { command_id = info["id"], command_output = string.format("Slot #%d", slot) }
 		ws.send(textutils.serializeJSON(output))
@@ -443,6 +443,12 @@ function handle_message(message)
 			do
 				return
 			end
+		end
+	elseif info["type"] == "fuel_level" then
+		local output = { command_id = info["id"], command_output = turtle.getFuelLevel() }
+		ws.send(textutils.serializeJSON(output))
+		do
+			return
 		end
 	elseif info["type"] == "get_inv" then
 		-- This gets the inventory for the chest in front of the turtle
