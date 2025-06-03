@@ -767,7 +767,7 @@ async def refuel_and_relieve(turtle):
             fuel_message = await send_refuel(turtle.websocket, i)
             if fuel_message["command_output"] != "No items to combust":
                 break
-    fuel_level = turtle.get_fuel_level()
+    fuel_level = await turtle.get_fuel_level()
     inventory = await check_inventory(turtle.websocket)
     fuel = 0
     fuel_items = ["fuel", "coal", "wood", "lava", "blaze_rod"]
