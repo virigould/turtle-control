@@ -320,7 +320,7 @@ def is_valuable(block):
     if block is None:
         return False
     name = block.get("name", "")
-    tags = block.get("tags","")
+    tags = block.get("tags", {})
     if do_not_break(name, tags):
         return False
     valuable_keywords = ["coal", "iron", "gold", "copper", "diamond", "lapis", "emerald", "redstone", "ore"]
@@ -434,7 +434,7 @@ async def clear_falling_blocks(turtle):
     while True:
         block = await turtle.inspect()
         name = block.get("name", "")
-        tags = block.get("tags", "")
+        tags = block.get("tags", {})
         if "sand" in name or "gravel" in name:
             await turtle.dig()
             await asyncio.sleep(0.2)
