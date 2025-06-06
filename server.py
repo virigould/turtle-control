@@ -309,7 +309,7 @@ def is_valuable(block):
     return any(ore in name for ore in valuable_keywords)
 
 
-def dig_valuable(blocks):
+def get_valuable(blocks):
     """
     takes a dictionary of direction -> block info, and returns a list of
     instructions to efficiently mine ores.
@@ -416,14 +416,12 @@ async def mine(blocks, turtle):
         "turn_right": turtle.turn_right,
     }
 
-    instructions = dig_valuable(blocks)
+    instructions = get_valuable(blocks)
 
     for instruction in instructions:
         action = instruction_map.get(instruction)
         if action:
             await action()
-        else:
-            print(f"Unknown instruction: {instruction}")
 
 
 async def clear_falling_blocks(turtle):
