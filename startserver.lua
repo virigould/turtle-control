@@ -508,25 +508,16 @@ end
 
 function main()
 	local length = #args
-	if #arg < 10 then
-		print("Usage: startserver.lua chunks homeX homeY homeZ chestX chestY chestZ minesX minesY minesZ")
+	if #arg < 5 then
+		print("Usage: startserver.lua chunks chests minesX minesY minesZ\nExample: startserver.lua 10 center 123 456 789")
 		return
 	end
 	local chunks = arg[1]
-	local home = {
-		x = tonumber(arg[2]),
-		y = tonumber(arg[3]),
-		z = tonumber(arg[4]),
-	}
-	local chest = {
-		x = tonumber(arg[5]),
-		y = tonumber(arg[6]),
-		z = tonumber(arg[7]),
-	}
+	local chests = arg[2]
 	local destination = {
-		x = tonumber(arg[8]),
-		y = tonumber(arg[9]),
-		z = tonumber(arg[10]),
+		x = tonumber(arg[3]),
+		y = tonumber(arg[4]),
+		z = tonumber(arg[5]),
 	}
 
 	if file_exists("computer_info.txt") then
@@ -542,9 +533,7 @@ function main()
 		computer_name = computer_info.name,
 		job = computer_info.job,
 		chunks = tonumber(chunks),
-		home = home,
-		chest = chest,
-		placement = placement,
+		chests = chests,
 		destination = destination,
 	}
 

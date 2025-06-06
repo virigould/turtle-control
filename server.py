@@ -8,9 +8,17 @@ import uuid
 current_commands = {}
 current_id = 0
 clients = {}
+
 # cardinal directions in clockwise order:
 # North (z-), East (x+), South (z+), West (x-)
 CARDINALS = [("z", -1), ("x", 1), ("z", 1), ("x", -1)]
+
+# index of possible dump/refuel chests coordinates
+CHESTS = {
+    "left": {"x": 63, "y": 149, "z": -447},
+    "center": {"x": 63, "y": 149, "z": -451},
+    "right": {"x": 63, "y": 149, "z": -455}
+}
 
 
 async def send_command(websocket, command):
@@ -174,35 +182,10 @@ async def send_select_slot(websocket, slot):
     return response
 
 
-def do_not_break(name, tags):
-    do_not_break_list = [
-        "allthemodium",
-        "vibranium",
-        "unobtainium"
-    ]
-
-    if tags.get("silentgear:incorrect_for_diamond_tools"):
-        return True
-    if any(ore in name for ore in do_not_break_list):
-        return True
-    return False
-
-
 class Turtle:
     def __init__(self, name, websocket):
-        self.location = {"x": 0, "y": 0, "z": 0}
         self.name = name
-        self.direction = "x"
         self.websocket = websocket
-        self.block_buffer = []
-        self.last_refuel = 10
-
-    async def check_refuel(self):
-        if self.last_refuel == 10:
-            self.last_refuel = 0
-            await send_refuel(self.websocket)
-
-    # def check_geofence():
 
     async def forward(self):
         return await send_move(self.websocket, "forward")
@@ -301,19 +284,18 @@ class Turtle:
         return results
 
 
-def y_from(here, y):
-    diff = y - here["y"]
-    return diff
+def do_not_break(name, tags):
+    do_not_break_list = [
+        "allthemodium",
+        "vibranium",
+        "unobtainium"
+    ]
 
-
-def x_from(here, x):
-    diff = x - here["x"]
-    return diff
-
-
-def z_from(here, z):
-    diff = z - here["z"]
-    return diff
+    if tags.get("silentgear:incorrect_for_diamond_tools"):
+        return True
+    if any(ore in name for ore in do_not_break_list):
+        return True
+    return False
 
 
 def is_valuable(block):
@@ -402,6 +384,20 @@ def dig_valuable(blocks):
             instructions += turn_map[direction]
 
     return instructions
+
+
+def distance(here, target, axis):
+    return target[axis] - here[axis]
+
+
+def get_direction_index(axis, direction):
+    return CARDINALS.index((axis, direction))
+
+
+def get_turn_diff(current_axis, current_dir, target_axis, target_dir):
+    current = get_direction_index(current_axis, current_dir)
+    target = get_direction_index(target_axis, target_dir)
+    return (target - current) % 4
 
 
 async def mine(blocks, turtle):
@@ -634,16 +630,6 @@ async def mine_chunk(turtle):
         await turtle.forward()
 
 
-def get_direction_index(axis, direction):
-    return CARDINALS.index((axis, direction))
-
-
-def get_turn_diff(current_axis, current_dir, target_axis, target_dir):
-    current = get_direction_index(current_axis, current_dir)
-    target = get_direction_index(target_axis, target_dir)
-    return (target - current) % 4
-
-
 async def orient(turtle):
     """
     determines which axis the turtle is currently facing, and in which direction (+/-).
@@ -671,17 +657,17 @@ async def orient(turtle):
     return axis, direction
 
 
-async def face_axis(turtle, facing_axis, facing_dir, target_axis, distance):
+async def face_axis(turtle, facing_axis, facing_dir, target_axis, dist):
     """
     points the turtle in the cardinal direction it needs to be facing
     :param turtle:
     :param facing_axis: axis the turtle is currently on (x/z)
     :param facing_dir: direction the turtle is currently facing (+/-)
     :param target_axis: the axis the turtle needs to be on (x/z)
-    :param distance: direction the turtle needs to be facing (+/-)
+    :param dist: direction the turtle needs to be facing (+/-)
     :return None:
     """
-    target_dir = 1 if distance > 0 else -1
+    target_dir = 1 if dist > 0 else -1
     diff = get_turn_diff(facing_axis, facing_dir, target_axis, target_dir)
 
     if diff == 0:
@@ -707,35 +693,35 @@ async def navigate(turtle, axis, direction, destination):
     :param destination: where the turtle needs to be
     :return:
     """
-    current = await send_gps(turtle.websocket)
-    dx = destination.get("x") - current.get("x")
+    here = await send_gps(turtle.websocket)
+    dx = distance(here, destination, "x")
     if dx != 0:
         await face_axis(turtle, axis, direction, "x", dx)
         for i in range(abs(dx)):
             await turtle.forward()
         axis, direction = "x", 1 if dx > 0 else -1
-    current = await send_gps(turtle.websocket)
-    dz = destination.get("z") - current.get("z")
+    here = await send_gps(turtle.websocket)
+    dz = distance(here, destination, "z")
     if dz != 0:
         await face_axis(turtle, axis, direction, "z", dz)
         for i in range(abs(dz)):
             await turtle.forward()
 
 
-async def go_to(location, turtle):
+async def go_to(destination, turtle):
     """
     sends the turtle to a specified set of coordinates (x, y, z)
-    :param location: dict of coordinates
+    :param destination: dict of coordinates
     :param turtle:
     :return:
     """
     here = await send_gps(turtle.websocket)
-    y_distance = y_from(here, 250)
+    y_distance = distance(here, {"y":250}, "y")
     await tunnel(turtle, "y", "up", y_distance)
     axis, direction = await orient(turtle)
-    await navigate(turtle, axis, direction, location)
+    await navigate(turtle, axis, direction, destination)
     current = await send_gps(turtle.websocket)
-    y_distance = y_from(current, location.get("y"))
+    y_distance = distance(current, destination, "y")
     direction = 1 if y_distance > 0 else -1
     await tunnel(turtle, "y", "down" if direction < 0 else "up", abs(y_distance))
 
@@ -787,7 +773,7 @@ async def refuel_and_relieve(turtle):
     return fuel_level, fuel
 
 
-async def im_boutta_bust(websocket, threshold=15, item_threshold=60):
+async def im_boutta_bust(websocket, slot_threshold=15, item_threshold=60):
     inventory = await check_inventory(websocket)
     full_slots = 0
 
@@ -809,19 +795,22 @@ async def im_boutta_bust(websocket, threshold=15, item_threshold=60):
         if any(ultra in name for ultra in ultra_items):
             full_slots += 1
 
-    return full_slots >= threshold
+    return full_slots >= slot_threshold
 
 
-async def go_mining(turtle, chunks, home, chest, the_mines):
+async def go_mining(turtle, chunks, chests, the_mines):
     """
     send the turtle mining
     :param turtle:
     :param chunks: number of chunks to mine
-    :param home: dict of coordinates
-    :param chest: dict of coordinates
+    :param chests: string that denotes which chest pair the turtle will use
     :param the_mines: dict of coordinates
     :return:
     """
+    # set home coordinates
+    home = await send_gps(turtle.websocket)
+    # and assign the chest coordinates
+    chest = CHESTS.get(chests)
 
     # move the turtle to its mining location
     await go_to(the_mines, turtle)
@@ -859,14 +848,11 @@ async def handle_message(websocket):
                 if mssg["job"] == "miner":
                     # this has to be in the background and can not be awaited as it will block all the threads
                     turtle = Turtle(mssg["computer_name"], websocket)
-                    chunks = int(mssg["chunks"])  # int
-                    home = mssg["home"]  # dict: { "x": ..., "y": ..., "z": ... }
-                    chest = mssg["chest"]  # dict: { "x": ..., "y": ..., "z": ... }
-                    destination = mssg[
-                        "destination"
-                    ]  # dict: { "x": ..., "y": ..., "z": ... }
+                    chunks = int(mssg["chunks"])
+                    chests = mssg["chests"]
+                    destination = mssg["destination"]
                     asyncio.get_event_loop().create_task(
-                        go_mining(turtle, chunks, home, chest, destination)
+                        go_mining(turtle, chunks, chests, destination)
                     )
         elif "command_id" in mssg:
             if mssg["command_id"] in current_commands:
